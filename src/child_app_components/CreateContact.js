@@ -1,9 +1,13 @@
 import React from "react"
+import FormControl from "./form_component/FormComponent"
 
 class CreateContact extends React.Component{
 
     constructor(){
         super()
+        this.state = {
+            caller:"createContact"
+        }
     }
 
     componentDidMount(){
@@ -13,7 +17,7 @@ class CreateContact extends React.Component{
     render(){
         return (
             <div>
-                <h1>Dans Create Contact</h1>
+                <FormControl caller={this.state.caller}/>
             </div>
             
         )
