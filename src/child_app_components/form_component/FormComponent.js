@@ -3,11 +3,13 @@ import {Form,Button,Col} from "react-bootstrap"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class FormComponent extends React.Component{
-    constructor(){
-        super()
+    constructor(props){
+        super(props)
         this.state = {
             modForm:"",
             idContact:"",
+            idAddress:"",
+            idPhone:"",
             firstname:"",
             lastname:"",
             email:"",
@@ -15,7 +17,8 @@ class FormComponent extends React.Component{
             city:"",
             zip:"",
             country:"",
-            kind:""
+            kind:"Perso",
+            number:""
         }
 
         this.getContactInfo = this.getContactInfo.bind(this)
@@ -24,30 +27,67 @@ class FormComponent extends React.Component{
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.createContact = this.createContact.bind(this)
+        this.updateContact = this.updateContact.bind(this)
+        this.deleteContact = this.deleteContact.bind(this)
     }
 
     componentDidMount(){
-        if (this.props.caller === "detailContact") {
+    
+        if (this.props.caller === "detailsContact") {
             this.setState({modForm:"Update contact"})
-            this.getContactInfo()
-            this.getAddressInfo()
-            this.getPhoneInfo()
+            this.getContactInfo(this.props.idContact)
+            this.getAddressInfo(this.props.idContact)
+            this.getPhoneInfo(this.props.idContact)
         }
         else {
             this.setState({modForm:"Create contact"}) 
         }
     }
 
-    getContactInfo(){
-        console.log("a")
+    getContactInfo(idContact){
+        fetch("http://localhost:8080/api/contact/"+idContact)
+        .then(response => response.json())
+        .then(data => {
+            this.setState({
+                            idContact:idContact,
+                            firstname:data.fname,
+                            lastname:data.lname,
+                            email:data.email
+            })
+        })
+        .catch(err => {throw new Error(err)})
     }
 
-    getAddressInfo(){
-        console.log("a")
+    getAddressInfo(idContact){
+        fetch("http://localhost:8080/api/address/addressbycontact/"+idContact)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            this.setState({
+                            idAddress:data.idAddress,
+                            street:data.street,
+                            city:data.city,
+                            zip:data.zip,
+                            country:data.country
+            })
+        })
+        .catch(err => {throw new Error(err)})
     }
 
-    getPhoneInfo(){
-        console.log("a")
+    getPhoneInfo(idContact){
+        fetch("http://localhost:8080/api/phone/phonesbycontact/"+idContact)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            data.map(phone => 
+                this.setState({
+                idPhone: phone.idPhone,
+                number: phone.phoneNumber,
+                kind: phone.phoneKind
+                })   
+            )
+        })
+        .catch(err => {throw new Error(err)})
     }
 
     handleChange(event){
@@ -55,10 +95,13 @@ class FormComponent extends React.Component{
         this.setState({ [name]:value})
     }
 
-    handleSubmit(){
+    handleSubmit(modeButton){
 
         if (this.state.modForm==="Create contact"){
            this.createContact()
+        }
+        else {
+            this.updateContact()
         }
         
     }
@@ -89,12 +132,64 @@ class FormComponent extends React.Component{
             .then(response => response.json())
             .then(response => {
                     this.setState({idContact:response.idContact})
-                    console.log(response.idContact)
-                    this.createAddress(response.idContact)
+                    this.props.handleStateHeaderChange("manageContacts","")
             })
             .catch(err => {
                 console.log(err);
             });
+    }
+
+    updateContact(){
+        fetch("http://localhost:8080/api/contact/" + this.state.idContact, {
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Content-Type": "application/json"
+                  },
+                method: 'PUT',
+                body : JSON.stringify({
+                    fname:this.state.firstname,
+                    lname:this.state.lastname,
+                    email:this.state.email,
+                    address:{
+                        idAddress:this.state.idAddress,
+                        street:this.state.street,
+                        city:this.state.city,
+                        zip:this.state.zip,
+                        country:this.state.country
+                    },
+                    phones:[{
+                        idPhone:this.state.idPhone,
+                        phoneNumber:this.state.number,
+                        phoneKind:this.state.kind
+                    }]
+                })
+            })
+            .then(response => response.json())
+            .then(response => {
+            })
+            .catch(err => {
+                console.log(err);
+            });
+            this.props.handleStateHeaderChange("manageContacts","")
+    }
+
+    deleteContact(){
+        console.log(this.state.idContact)
+        fetch("http://localhost:8080/api/contact/"+this.state.idContact, {
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Content-Type": "application/json"
+                  },
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(response => {
+                    console.log(response)
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        this.props.handleStateHeaderChange("manageContacts","")
     }
 
    
@@ -164,9 +259,18 @@ class FormComponent extends React.Component{
                     </Form.Group>
                 </Form.Row>
 
+                
                 <Button variant="primary" type="button" onClick={this.handleSubmit}>
                     {this.state.modForm}
                 </Button>
+            
+                {
+                    this.state.modForm === "Update contact" ? 
+                        <Button variant="primary" type="button" onClick={this.deleteContact}>
+                            Delete contact
+                        </Button> : ""
+                }
+                
             </Form>
 
         )

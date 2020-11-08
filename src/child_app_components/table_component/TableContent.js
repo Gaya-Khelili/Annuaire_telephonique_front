@@ -2,7 +2,6 @@ import React from "react"
 import {Button} from "react-bootstrap"
 
 function TableContent(props){
-
     
     return (
            
@@ -12,13 +11,33 @@ function TableContent(props){
                 <td>{props.contact.lname}</td>
                 <td>{props.contact.email}</td>
                 <td>
-                    <Button variant="outline-info" onClick={() => {console.log(props.contact.idContact)}}>Details</Button>
-                    <Button variant="outline-info">Update</Button>
-                    <Button variant="outline-info">Delete</Button>
+                    <Button variant="outline-info" >Details</Button>
+                    <Button variant="outline-info" onClick={() =>  
+                        props.handleStateHeaderChange("detailsContact",props.contact.idContact)}>Update
+                    </Button>
+                    <Button variant="outline-info" onClick={() => {deleteContact(props.contact.idContact)
+                        }}>Delete</Button>
                 </td>
             </tr>
         
     )
+}
+
+function deleteContact(idContact){
+    fetch("http://localhost:8080/api/contact/"+idContact, {
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Content-Type": "application/json"
+                  },
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(response => {
+                    console.log(response)
+            })
+            .catch(err => {
+                console.log(err);
+            });
 }
 
 export default TableContent
