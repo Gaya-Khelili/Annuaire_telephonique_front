@@ -129,7 +129,6 @@ class FormComponent extends React.Component{
                     }]
                 })
             })
-            .then(response => response.json())
             .then(response => {
                     this.setState({idContact:response.idContact})
                     this.props.handleStateHeaderChange("manageContacts","")
@@ -164,13 +163,12 @@ class FormComponent extends React.Component{
                     }]
                 })
             })
-            .then(response => response.json())
             .then(response => {
+                this.props.handleStateHeaderChange("manageContacts","")
             })
             .catch(err => {
                 console.log(err);
             });
-            this.props.handleStateHeaderChange("manageContacts","")
     }
 
     deleteContact(){
@@ -182,14 +180,12 @@ class FormComponent extends React.Component{
                   },
                 method: 'DELETE',
             })
-            .then(response => response.json())
             .then(response => {
-                    console.log(response)
+                this.props.handleStateHeaderChange("manageContacts","")
             })
             .catch(err => {
                 console.log(err);
             });
-        this.props.handleStateHeaderChange("manageContacts","")
     }
 
    

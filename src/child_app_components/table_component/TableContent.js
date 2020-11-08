@@ -11,10 +11,8 @@ function TableContent(props){
                 <td>{props.contact.lname}</td>
                 <td>{props.contact.email}</td>
                 <td>
-                    <Button variant="outline-info" >Details</Button>
                     <Button variant="outline-info" onClick={() =>  
-                        props.handleStateHeaderChange("detailsContact",props.contact.idContact)}>Update
-                    </Button>
+                        props.handleStateHeaderChange("detailsContact",props.contact.idContact)}>Details</Button>
                     <Button variant="outline-info" onClick={() => {deleteContact(props.contact.idContact)
                         }}>Delete</Button>
                 </td>
