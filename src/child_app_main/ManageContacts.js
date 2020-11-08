@@ -1,6 +1,6 @@
 import React from "react"
 import Table from 'react-bootstrap/Table'
-import TableContent from "./table_component/TableContent"
+import TableContent from "../child_app_components/table_component/TableContent"
 
 
 class ManageContacts extends React.Component{
@@ -11,8 +11,9 @@ class ManageContacts extends React.Component{
             allContact:[]
         }
     }
-
+    
     componentDidMount(){
+        console.log("manage")
         fetch("http://localhost:8080/api/contact/")
         .then(response => response.json())
         .then(data => {
@@ -23,8 +24,10 @@ class ManageContacts extends React.Component{
     }
 
     buildContactComponent(){
+        
         const contactsComponent = this.state.allContact.map(item => 
-            <TableContent key={item.idContact} contact={item}/>)
+            <TableContent key={item.idContact} contact={item} 
+                handleStateHeaderChange={this.props.handleStateHeaderChange}/>)
         return contactsComponent
     }
 
