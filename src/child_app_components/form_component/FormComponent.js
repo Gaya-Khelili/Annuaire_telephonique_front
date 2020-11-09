@@ -131,7 +131,7 @@ class FormComponent extends React.Component{
             })
             .then(response => {
                     this.setState({idContact:response.idContact})
-                    this.props.handleStateHeaderChange("manageContacts","")
+                    this.props.handleStateHeaderChange("manageContacts","allContacts")
             })
             .catch(err => {
                 console.log(err);
@@ -164,7 +164,7 @@ class FormComponent extends React.Component{
                 })
             })
             .then(response => {
-                this.props.handleStateHeaderChange("manageContacts","")
+                this.props.handleStateHeaderChange("manageContacts","allContacts")
             })
             .catch(err => {
                 console.log(err);
@@ -181,7 +181,7 @@ class FormComponent extends React.Component{
                 method: 'DELETE',
             })
             .then(response => {
-                this.props.handleStateHeaderChange("manageContacts","")
+                this.props.handleStateHeaderChange("manageContacts","allContacts")
             })
             .catch(err => {
                 console.log(err);
@@ -256,13 +256,17 @@ class FormComponent extends React.Component{
                 </Form.Row>
 
                 
-                <Button variant="primary" type="button" onClick={this.handleSubmit}>
+                <Button variant="primary" type="button" onClick={() => { 
+                    if (window.confirm('Are you sure you want to create/update this contact?')) 
+                        this.handleSubmit() }}>
                     {this.state.modForm}
-                </Button>
+                </Button>   
             
                 {
                     this.state.modForm === "Update contact" ? 
-                        <Button variant="primary" type="button" onClick={this.deleteContact}>
+                        <Button variant="primary" type="button" onClick={() => { 
+                                if (window.confirm('Are you sure you want to delete this contact?'))
+                            this.deleteContact()}}>
                             Delete contact
                         </Button> : ""
                 }

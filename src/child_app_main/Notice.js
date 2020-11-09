@@ -7,7 +7,7 @@ class Notice extends React.Component{
     }
 
     componentDidMount(){
-        console.log("load create group")
+        console.log("load notice")
     }
 
     render(){

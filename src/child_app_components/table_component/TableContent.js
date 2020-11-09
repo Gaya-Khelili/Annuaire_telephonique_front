@@ -13,7 +13,8 @@ function TableContent(props){
                 <td>
                     <Button variant="outline-info" onClick={() =>  
                         props.handleStateHeaderChange("detailsContact",props.contact.idContact)}>Details</Button>
-                    <Button variant="outline-info" onClick={() => {deleteContact(props.contact.idContact)
+                    <Button variant="outline-info" onClick={() => {deleteContact(props.contact.idContact) 
+                             props.handleStateHeaderChange("manageContactsUpdated","")
                         }}>Delete</Button>
                 </td>
             </tr>
@@ -29,9 +30,8 @@ function deleteContact(idContact){
                   },
                 method: 'DELETE',
             })
-            .then(response => response.json())
             .then(response => {
-                    console.log(response)
+               
             })
             .catch(err => {
                 console.log(err);
