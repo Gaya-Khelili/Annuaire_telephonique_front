@@ -259,36 +259,6 @@ class FormComponent extends React.Component{
                 </Form.Row>
                 </div>
                 
-                {
-                    this.state.modForm === "Update contact" ?
-                    <Form.Row>
-                    {this.state.phones.map((phone, idx) => (
-                        <div className="phone">
-                         
-                            <Form.Group as={Col} controlId="formGridPhoneNumber">
-                                <Form.Label>Phone number</Form.Label>
-                                <Form.Control placeholder={`Phone number #${idx + 1}`}
-                                    value={phone.phoneNumber} name="phoneNumber" onChange={this.handlePhoneChange(idx)}/>
-                                </Form.Group>
-
-                                <Form.Group as={Col} controlId="formGridPhoneKind">
-                                    <Form.Label>kind of phone</Form.Label>
-                                    <Form.Control as="select" defaultValue="Choose..."
-                                        value={phone.phoneKind} name="phoneKind" onChange={this.handlePhoneChange(idx)}>
-                                        <option>Perso</option>
-                                        <option>Pro</option>
-                                    </Form.Control >
-                                </Form.Group>
-                         
-                        </div>
-                    ))}
-                       </Form.Row>
-                       : ""
-                }
-                
-
-                {
-                    this.state.modForm === "Create contact" ?
                     <div >
                         
                         <Button
@@ -331,8 +301,6 @@ class FormComponent extends React.Component{
                     ))}
                        </Form.Row>
                        </div>
-                       : ""
-                }
             
                 {
                     this.state.modForm === "Update contact" ? 
