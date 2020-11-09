@@ -10,6 +10,7 @@ class ManageContacts extends React.Component{
         this.state = {
             allContact:[]
         }
+        this.handleRefresh = this.handleRefresh.bind(this)
     }
     
     componentDidMount(){
@@ -27,8 +28,13 @@ class ManageContacts extends React.Component{
         
         const contactsComponent = this.state.allContact.map(item => 
             <TableContent key={item.idContact} contact={item} 
-                handleStateHeaderChange={this.props.handleStateHeaderChange}/>)
+                handleStateHeaderChange={this.props.handleStateHeaderChange}
+                handleRefresh={this.handleRefresh}/>)
         return contactsComponent
+    }
+
+    handleRefresh(){
+        this.componentDidMount()
     }
 
     render(){

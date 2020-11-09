@@ -277,6 +277,15 @@ class FormComponent extends React.Component{
 
                 {
                     this.state.modForm === "Create contact" ?
+                    <div>
+                        <Button
+                                variant="primary" type="button"
+                                onClick={this.handleAddPhone}
+                                className="small"
+                            >
+                                Add phone
+                            </Button>
+                    
                     <Form.Row>
                     {this.state.phones.map((phone, idx) => (
                         <div className="phone">
@@ -298,14 +307,6 @@ class FormComponent extends React.Component{
                             
                             <Button
                                 variant="primary" type="button"
-                                onClick={this.handleAddPhone}
-                                className="small"
-                            >
-                                Add phone
-                            </Button>
-
-                            <Button
-                                variant="primary" type="button"
                                 onClick={this.handleRemovePhone(idx)}
                                 className="small"
                             >
@@ -315,6 +316,7 @@ class FormComponent extends React.Component{
                         </div>
                     ))}
                        </Form.Row>
+                       </div>
                        : ""
                 }
                 

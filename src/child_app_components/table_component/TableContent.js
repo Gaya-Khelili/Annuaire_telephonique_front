@@ -13,16 +13,17 @@ function TableContent(props){
                 <td>
                     <Button variant="outline-info" onClick={() =>  
                         props.handleStateHeaderChange("detailsContact",props.contact.idContact)}>Details</Button>
-                    <Button variant="outline-info" onClick={() => {deleteContact(props.contact.idContact) 
-                             props.handleStateHeaderChange("manageContactsUpdated","")
+
+                    <Button variant="outline-info" onClick={() => {
+                        if (window.confirm('Are you sure you want to delete this contact?'))
+                        deleteContact(props.contact.idContact,props)   
                         }}>Delete</Button>
                 </td>
             </tr>
-        
     )
 }
 
-function deleteContact(idContact){
+function deleteContact(idContact,props){
     fetch("http://localhost:8080/api/contact/"+idContact, {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
@@ -31,7 +32,7 @@ function deleteContact(idContact){
                 method: 'DELETE',
             })
             .then(response => {
-               
+                props.handleRefresh()
             })
             .catch(err => {
                 console.log(err);
