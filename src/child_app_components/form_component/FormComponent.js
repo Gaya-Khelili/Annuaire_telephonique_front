@@ -1,6 +1,13 @@
 import React from "react"
-import {Form,Button,Col} from "react-bootstrap"
+import {Form,Col} from "react-bootstrap"
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Button from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import CreateIcon from '@material-ui/icons/Create';
+import TextField from '@material-ui/core/TextField';
 
 class FormComponent extends React.Component{
     constructor(props){
@@ -18,13 +25,15 @@ class FormComponent extends React.Component{
             zip:"",
             country:"",
             kind:"Perso",
-            number:""
+            number:"",
+            phones: [{idPhone:"",phoneNumber:"",phoneKind:"Perso"}]
         }
 
         this.getContactInfo = this.getContactInfo.bind(this)
         this.getAddressInfo = this.getAddressInfo.bind(this)
         this.getPhoneInfo = this.getPhoneInfo.bind(this)
         this.handleChange = this.handleChange.bind(this)
+        this.handlePhoneChange = this.handlePhoneChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.createContact = this.createContact.bind(this)
         this.updateContact = this.updateContact.bind(this)
@@ -78,14 +87,7 @@ class FormComponent extends React.Component{
         fetch("http://localhost:8080/api/phone/phonesbycontact/"+idContact)
         .then(response => response.json())
         .then(data => {
-            console.log(data)
-            data.map(phone => 
-                this.setState({
-                idPhone: phone.idPhone,
-                number: phone.phoneNumber,
-                kind: phone.phoneKind
-                })   
-            )
+            this.setState({phones:data})
         })
         .catch(err => {throw new Error(err)})
     }
@@ -106,6 +108,27 @@ class FormComponent extends React.Component{
         
     }
 
+    handlePhoneChange = idx => evt => {
+        const newPhones = this.state.phones.map((phone, sidx) => {
+          if (idx !== sidx) return phone;
+          return { ...phone, [evt.target.name]: evt.target.value };
+        });
+    
+        this.setState({ phones: newPhones });
+      };
+
+      handleAddPhone = () => {
+        this.setState({
+          phones: this.state.phones.concat([{ phoneNumber: "",phoneKind:"Perso" }])
+        });
+      };
+    
+      handleRemovePhone = idx => () => {
+        this.setState({
+            phones: this.state.phones.filter((p, sidx) => idx !== sidx)
+        });
+      };
+
     createContact(){
         fetch("http://localhost:8080/api/contact/fullcontact", {
                 headers: {
@@ -123,15 +146,12 @@ class FormComponent extends React.Component{
                         zip:this.state.zip,
                         country:this.state.country
                     },
-                    phones:[{
-                        phoneNumber:this.state.number,
-                        phoneKind:this.state.kind
-                    }]
+                    phones:this.state.phones
                 })
             })
             .then(response => {
                     this.setState({idContact:response.idContact})
-                    this.props.handleStateHeaderChange("manageContacts","")
+                    this.props.handleStateHeaderChange("manageContacts","allContacts")
             })
             .catch(err => {
                 console.log(err);
@@ -156,15 +176,11 @@ class FormComponent extends React.Component{
                         zip:this.state.zip,
                         country:this.state.country
                     },
-                    phones:[{
-                        idPhone:this.state.idPhone,
-                        phoneNumber:this.state.number,
-                        phoneKind:this.state.kind
-                    }]
+                    phones:this.state.phones
                 })
             })
             .then(response => {
-                this.props.handleStateHeaderChange("manageContacts","")
+                this.props.handleStateHeaderChange("manageContacts","allContacts")
             })
             .catch(err => {
                 console.log(err);
@@ -181,7 +197,7 @@ class FormComponent extends React.Component{
                 method: 'DELETE',
             })
             .then(response => {
-                this.props.handleStateHeaderChange("manageContacts","")
+                this.props.handleStateHeaderChange("manageContacts","allContacts")
             })
             .catch(err => {
                 console.log(err);
@@ -192,26 +208,30 @@ class FormComponent extends React.Component{
     render(){
         return(
             <Form>
-                <Form.Row>
-                <Form.Group as={Col} controlId="formGridFname">
+                <div class="border border-primary" style={{ marginBottom: '40px' }}>
+                    <Form.Row>
+                    <Form.Group as={Col} controlId="formGridFname">
+                        
                     <Form.Label>First Name</Form.Label>
                     <Form.Control type="text" placeholder="First Name" 
-                        value={this.state.firstname} name="firstname" onChange={this.handleChange}/>
-                    </Form.Group>
+                            value={this.state.firstname} name="firstname" onChange={this.handleChange}/>
+                        </Form.Group>
 
-                    <Form.Group as={Col} controlId="formGridLname">
-                    <Form.Label>Last Name</Form.Label>
-                    <Form.Control type="text" placeholder="Last Name" 
-                         value={this.state.lastname} name="lastname" onChange={this.handleChange}/>
-                    </Form.Group>
+                        <Form.Group as={Col} controlId="formGridLname">
+                        <Form.Label>Last Name</Form.Label>
+                        <Form.Control type="text" placeholder="Last Name" 
+                            value={this.state.lastname} name="lastname" onChange={this.handleChange}/>
+                        </Form.Group>
 
-                    <Form.Group as={Col} controlId="formGridEmail">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" placeholder="Enter email" 
-                         value={this.state.email} name="email" onChange={this.handleChange}/>
-                    </Form.Group>
-                </Form.Row>
-
+                        <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control type="email" placeholder="Enter email" 
+                            value={this.state.email} name="email" onChange={this.handleChange}/>
+                        </Form.Group>
+                    </Form.Row>
+                </div>
+                
+                <div class="border border-primary" style={{ marginBottom: '25px' }}>
                 <Form.Group controlId="formGridStreet">
                     <Form.Label>Address</Form.Label>
                     <Form.Control placeholder="Address" 
@@ -237,34 +257,86 @@ class FormComponent extends React.Component{
                         value={this.state.country} name="country" onChange={this.handleChange}/>
                     </Form.Group>
                 </Form.Row>
-
-                <Form.Row>
-                    <Form.Group as={Col} controlId="formGridPhoneNumber">
-                    <Form.Label>Phone number</Form.Label>
-                    <Form.Control placeholder="Phone number"
-                        value={this.state.number} name="number" onChange={this.handleChange}/>
-                    </Form.Group>
-
-                    <Form.Group as={Col} controlId="formGridPhoneKind">
-                    <Form.Label>kind of phone</Form.Label>
-                    <Form.Control as="select" defaultValue="Choose..."
-                        value={this.state.kind} name="kind" onChange={this.handleChange}>
-                        <option>Perso</option>
-                        <option>Pro</option>
-                    </Form.Control >
-                    </Form.Group>
-                </Form.Row>
-
+                </div>
                 
-                <Button variant="primary" type="button" onClick={this.handleSubmit}>
-                    {this.state.modForm}
-                </Button>
+                    <div >
+                        
+                        <Button
+                                variant="contained"
+                                color="secondary"
+                                startIcon={<AddCircleIcon />}
+                                onClick={this.handleAddPhone}
+                            >
+                                Add phone
+                            </Button>
+                    <br></br>
+                    <Form.Row>
+                    {this.state.phones.map((phone, idx) => (
+                        <div className="phone" class="border" style={{ marginRight: '10px' ,
+                                                     marginBottom: '10px'}}>
+                         
+                            <Form.Group as={Col} controlId="formGridPhoneNumber">
+                                <Form.Label>Phone number</Form.Label>
+                                <Form.Control placeholder={`Phone number #${idx + 1}`}
+                                    value={phone.phoneNumber} name="phoneNumber" onChange={this.handlePhoneChange(idx)}/>
+                                </Form.Group>
+
+                                <Form.Group as={Col} controlId="formGridPhoneKind">
+                                    <Form.Label>kind of phone</Form.Label>
+                                    <Form.Control as="select" defaultValue="Choose..."
+                                        value={phone.phoneKind} name="phoneKind" onChange={this.handlePhoneChange(idx)}>
+                                        <option>Perso</option>
+                                        <option>Pro</option>
+                                    </Form.Control >
+                                </Form.Group>
+                            
+                                <IconButton aria-label="delete"
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={this.handleRemovePhone(idx)}>
+                                     <DeleteIcon />
+                                 </IconButton>
+                                
+                        </div>
+                    ))}
+                       </Form.Row>
+                       </div>
             
                 {
                     this.state.modForm === "Update contact" ? 
-                        <Button variant="primary" type="button" onClick={this.deleteContact}>
-                            Delete contact
-                        </Button> : ""
+                    <div style={{ marginBottom: '20px' }}>
+                        <Button 
+                            variant="contained" 
+                            color="primary"
+                            startIcon={<CreateIcon />}
+                            onClick={() => { 
+                                    if (window.confirm('Are you sure you want to update this contact?')) 
+                            this.handleSubmit() }}>
+                        {this.state.modForm}
+                        </Button>   
+
+                        <Button 
+                        variant="contained"
+                            color="secondary"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => { 
+                                if (window.confirm('Are you sure you want to delete this contact?'))
+                                    this.deleteContact()}}>
+                                    Delete contact
+                        </Button> 
+                        </div>
+                        : 
+                        <div style={{ marginBottom: '20px' }}>
+                        <Button 
+                            variant="contained" 
+                            color="primary"
+                            startIcon={<PersonAddIcon />}
+                            onClick={() => { 
+                                if (window.confirm('Are you sure you want to create this contact?')) 
+                            this.handleSubmit() }}>
+                    {this.state.modForm}
+                </Button>   
+                </div>
                 }
                 
             </Form>

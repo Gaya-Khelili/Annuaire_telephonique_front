@@ -5,30 +5,36 @@ import TableContent from "../child_app_components/table_component/TableContent"
 
 class ManageContacts extends React.Component{
 
-    constructor(){
-        super()
+    constructor(props){
+        super(props)
         this.state = {
             allContact:[]
         }
+        this.handleRefresh = this.handleRefresh.bind(this)
     }
     
     componentDidMount(){
-        console.log("manage")
-        fetch("http://localhost:8080/api/contact/")
-        .then(response => response.json())
-        .then(data => {
-            this.setState({allContact:data})
-        })
-        .catch(err => {throw new Error(err)})
-        
+        if (this.props.modSelection === "allContacts"){
+            fetch("http://localhost:8080/api/contact/")
+            .then(response => response.json())
+            .then(data => {
+                this.setState({allContact:data})
+            })
+            .catch(err => {throw new Error(err)})
+        }
     }
 
     buildContactComponent(){
         
         const contactsComponent = this.state.allContact.map(item => 
             <TableContent key={item.idContact} contact={item} 
-                handleStateHeaderChange={this.props.handleStateHeaderChange}/>)
+                handleStateHeaderChange={this.props.handleStateHeaderChange}
+                handleRefresh={this.handleRefresh}/>)
         return contactsComponent
+    }
+
+    handleRefresh(){
+        this.componentDidMount()
     }
 
     render(){

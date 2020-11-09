@@ -13,17 +13,17 @@ class App extends React.Component {
     super()
     this.state = {
       headerItem: "",
-      optionalIdContact:""
+      parameter:""
     }
     this.handleStateHeaderChange=this.handleStateHeaderChange.bind(this)
   }
 
-  handleStateHeaderChange(newHeaderState,idContact){
+  handleStateHeaderChange(newHeaderState,parameter){
 
     if (this.state.headerItem !== newHeaderState){
 
       this.setState({headerItem: newHeaderState,
-                    optionalIdContact:idContact})
+                    parameter:parameter})
   
     }  
   }
@@ -35,10 +35,14 @@ class App extends React.Component {
               return <CreateContact modForm="createContact" idContact="" 
                       handleStateHeaderChange={this.handleStateHeaderChange}/>;
               case "detailsContact":
-                return <CreateContact modForm="detailsContact" idContact={this.state.optionalIdContact}
+                return <CreateContact modForm="detailsContact" idContact={this.state.parameter}
                         handleStateHeaderChange={this.handleStateHeaderChange}/>;
             case "manageContacts":
-              return <ManageContacts handleStateHeaderChange={this.handleStateHeaderChange}/>;
+              return <ManageContacts handleStateHeaderChange={this.handleStateHeaderChange} 
+                                    modSelection={this.state.parameter === "" ? "allContacts" : this.state.parameter}/>;
+            case "manageContactsUpdated":
+                return <ManageContacts handleStateHeaderChange={this.handleStateHeaderChange} 
+                                  modSelection={this.state.parameter === "" ? "allContacts" : this.state.parameter}/>;
             case "createGroup":
                 return <CreateGroup />;
             case "manageGroups":

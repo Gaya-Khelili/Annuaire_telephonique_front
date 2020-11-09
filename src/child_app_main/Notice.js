@@ -1,4 +1,6 @@
 import React from "react"
+import {Form,Button,Col} from "react-bootstrap"
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Notice extends React.Component{
 
@@ -7,15 +9,14 @@ class Notice extends React.Component{
     }
 
     componentDidMount(){
-        console.log("load create group")
+        console.log("load notice")
     }
+
+   
 
     render(){
         return (
-            <div>
-                <h1>Dans Notice</h1>
-            </div>
-            
+               <h1>Notice</h1>
         )
     }    
 }
