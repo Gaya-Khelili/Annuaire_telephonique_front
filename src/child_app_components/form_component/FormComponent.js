@@ -18,13 +18,15 @@ class FormComponent extends React.Component{
             zip:"",
             country:"",
             kind:"Perso",
-            number:""
+            number:"",
+            phones: [{idPhone:"",phoneNumber:"",phoneKind:"Perso"}]
         }
 
         this.getContactInfo = this.getContactInfo.bind(this)
         this.getAddressInfo = this.getAddressInfo.bind(this)
         this.getPhoneInfo = this.getPhoneInfo.bind(this)
         this.handleChange = this.handleChange.bind(this)
+        this.handlePhoneChange = this.handlePhoneChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.createContact = this.createContact.bind(this)
         this.updateContact = this.updateContact.bind(this)
@@ -78,14 +80,7 @@ class FormComponent extends React.Component{
         fetch("http://localhost:8080/api/phone/phonesbycontact/"+idContact)
         .then(response => response.json())
         .then(data => {
-            console.log(data)
-            data.map(phone => 
-                this.setState({
-                idPhone: phone.idPhone,
-                number: phone.phoneNumber,
-                kind: phone.phoneKind
-                })   
-            )
+            this.setState({phones:data})
         })
         .catch(err => {throw new Error(err)})
     }
@@ -106,6 +101,27 @@ class FormComponent extends React.Component{
         
     }
 
+    handlePhoneChange = idx => evt => {
+        const newPhones = this.state.phones.map((phone, sidx) => {
+          if (idx !== sidx) return phone;
+          return { ...phone, [evt.target.name]: evt.target.value };
+        });
+    
+        this.setState({ phones: newPhones });
+      };
+
+      handleAddPhone = () => {
+        this.setState({
+          phones: this.state.phones.concat([{ phoneNumber: "",phoneKind:"Perso" }])
+        });
+      };
+    
+      handleRemovePhone = idx => () => {
+        this.setState({
+            phones: this.state.phones.filter((p, sidx) => idx !== sidx)
+        });
+      };
+
     createContact(){
         fetch("http://localhost:8080/api/contact/fullcontact", {
                 headers: {
@@ -123,10 +139,7 @@ class FormComponent extends React.Component{
                         zip:this.state.zip,
                         country:this.state.country
                     },
-                    phones:[{
-                        phoneNumber:this.state.number,
-                        phoneKind:this.state.kind
-                    }]
+                    phones:this.state.phones
                 })
             })
             .then(response => {
@@ -156,11 +169,7 @@ class FormComponent extends React.Component{
                         zip:this.state.zip,
                         country:this.state.country
                     },
-                    phones:[{
-                        idPhone:this.state.idPhone,
-                        phoneNumber:this.state.number,
-                        phoneKind:this.state.kind
-                    }]
+                    phones:this.state.phones
                 })
             })
             .then(response => {
@@ -238,23 +247,78 @@ class FormComponent extends React.Component{
                     </Form.Group>
                 </Form.Row>
 
-                <Form.Row>
-                    <Form.Group as={Col} controlId="formGridPhoneNumber">
-                    <Form.Label>Phone number</Form.Label>
-                    <Form.Control placeholder="Phone number"
-                        value={this.state.number} name="number" onChange={this.handleChange}/>
-                    </Form.Group>
+                {
+                    this.state.modForm === "Update contact" ?
+                    <Form.Row>
+                    {this.state.phones.map((phone, idx) => (
+                        <div className="phone">
+                         
+                            <Form.Group as={Col} controlId="formGridPhoneNumber">
+                                <Form.Label>Phone number</Form.Label>
+                                <Form.Control placeholder={`Phone number #${idx + 1}`}
+                                    value={phone.phoneNumber} name="phoneNumber" onChange={this.handlePhoneChange(idx)}/>
+                                </Form.Group>
 
-                    <Form.Group as={Col} controlId="formGridPhoneKind">
-                    <Form.Label>kind of phone</Form.Label>
-                    <Form.Control as="select" defaultValue="Choose..."
-                        value={this.state.kind} name="kind" onChange={this.handleChange}>
-                        <option>Perso</option>
-                        <option>Pro</option>
-                    </Form.Control >
-                    </Form.Group>
-                </Form.Row>
+                                <Form.Group as={Col} controlId="formGridPhoneKind">
+                                    <Form.Label>kind of phone</Form.Label>
+                                    <Form.Control as="select" defaultValue="Choose..."
+                                        value={phone.phoneKind} name="phoneKind" onChange={this.handlePhoneChange(idx)}>
+                                        <option>Perso</option>
+                                        <option>Pro</option>
+                                    </Form.Control >
+                                </Form.Group>
+                         
+                        </div>
+                    ))}
+                       </Form.Row>
+                       : ""
+                }
+                
 
+                {
+                    this.state.modForm === "Create contact" ?
+                    <Form.Row>
+                    {this.state.phones.map((phone, idx) => (
+                        <div className="phone">
+                         
+                            <Form.Group as={Col} controlId="formGridPhoneNumber">
+                                <Form.Label>Phone number</Form.Label>
+                                <Form.Control placeholder={`Phone number #${idx + 1}`}
+                                    value={phone.phoneNumber} name="phoneNumber" onChange={this.handlePhoneChange(idx)}/>
+                                </Form.Group>
+
+                                <Form.Group as={Col} controlId="formGridPhoneKind">
+                                    <Form.Label>kind of phone</Form.Label>
+                                    <Form.Control as="select" defaultValue="Choose..."
+                                        value={phone.phoneKind} name="phoneKind" onChange={this.handlePhoneChange(idx)}>
+                                        <option>Perso</option>
+                                        <option>Pro</option>
+                                    </Form.Control >
+                                </Form.Group>
+                            
+                            <Button
+                                variant="primary" type="button"
+                                onClick={this.handleAddPhone}
+                                className="small"
+                            >
+                                Add phone
+                            </Button>
+
+                            <Button
+                                variant="primary" type="button"
+                                onClick={this.handleRemovePhone(idx)}
+                                className="small"
+                            >
+                                Remove phone
+                            </Button>
+                         
+                        </div>
+                    ))}
+                       </Form.Row>
+                       : ""
+                }
+                
+                
                 
                 <Button variant="primary" type="button" onClick={() => { 
                     if (window.confirm('Are you sure you want to create/update this contact?')) 
