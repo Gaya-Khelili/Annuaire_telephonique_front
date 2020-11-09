@@ -1,6 +1,13 @@
 import React from "react"
-import {Form,Button,Col} from "react-bootstrap"
+import {Form,Col} from "react-bootstrap"
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Button from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import CreateIcon from '@material-ui/icons/Create';
+import TextField from '@material-ui/core/TextField';
 
 class FormComponent extends React.Component{
     constructor(props){
@@ -201,26 +208,30 @@ class FormComponent extends React.Component{
     render(){
         return(
             <Form>
-                <Form.Row>
-                <Form.Group as={Col} controlId="formGridFname">
+                <div class="border border-primary" style={{ marginBottom: '40px' }}>
+                    <Form.Row>
+                    <Form.Group as={Col} controlId="formGridFname">
+                        
                     <Form.Label>First Name</Form.Label>
                     <Form.Control type="text" placeholder="First Name" 
-                        value={this.state.firstname} name="firstname" onChange={this.handleChange}/>
-                    </Form.Group>
+                            value={this.state.firstname} name="firstname" onChange={this.handleChange}/>
+                        </Form.Group>
 
-                    <Form.Group as={Col} controlId="formGridLname">
-                    <Form.Label>Last Name</Form.Label>
-                    <Form.Control type="text" placeholder="Last Name" 
-                         value={this.state.lastname} name="lastname" onChange={this.handleChange}/>
-                    </Form.Group>
+                        <Form.Group as={Col} controlId="formGridLname">
+                        <Form.Label>Last Name</Form.Label>
+                        <Form.Control type="text" placeholder="Last Name" 
+                            value={this.state.lastname} name="lastname" onChange={this.handleChange}/>
+                        </Form.Group>
 
-                    <Form.Group as={Col} controlId="formGridEmail">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" placeholder="Enter email" 
-                         value={this.state.email} name="email" onChange={this.handleChange}/>
-                    </Form.Group>
-                </Form.Row>
-
+                        <Form.Group as={Col} controlId="formGridEmail">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control type="email" placeholder="Enter email" 
+                            value={this.state.email} name="email" onChange={this.handleChange}/>
+                        </Form.Group>
+                    </Form.Row>
+                </div>
+                
+                <div class="border border-primary" style={{ marginBottom: '25px' }}>
                 <Form.Group controlId="formGridStreet">
                     <Form.Label>Address</Form.Label>
                     <Form.Control placeholder="Address" 
@@ -246,7 +257,8 @@ class FormComponent extends React.Component{
                         value={this.state.country} name="country" onChange={this.handleChange}/>
                     </Form.Group>
                 </Form.Row>
-
+                </div>
+                
                 {
                     this.state.modForm === "Update contact" ?
                     <Form.Row>
@@ -277,18 +289,21 @@ class FormComponent extends React.Component{
 
                 {
                     this.state.modForm === "Create contact" ?
-                    <div>
+                    <div >
+                        
                         <Button
-                                variant="primary" type="button"
+                                variant="contained"
+                                color="secondary"
+                                startIcon={<AddCircleIcon />}
                                 onClick={this.handleAddPhone}
-                                className="small"
                             >
                                 Add phone
                             </Button>
-                    
+                    <br></br>
                     <Form.Row>
                     {this.state.phones.map((phone, idx) => (
-                        <div className="phone">
+                        <div className="phone" class="border" style={{ marginRight: '10px' ,
+                                                     marginBottom: '10px'}}>
                          
                             <Form.Group as={Col} controlId="formGridPhoneNumber">
                                 <Form.Label>Phone number</Form.Label>
@@ -305,36 +320,55 @@ class FormComponent extends React.Component{
                                     </Form.Control >
                                 </Form.Group>
                             
-                            <Button
-                                variant="primary" type="button"
-                                onClick={this.handleRemovePhone(idx)}
-                                className="small"
-                            >
-                                Remove phone
-                            </Button>
-                         
+                                <IconButton aria-label="delete"
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={this.handleRemovePhone(idx)}>
+                                     <DeleteIcon />
+                                 </IconButton>
+                                
                         </div>
                     ))}
                        </Form.Row>
                        </div>
                        : ""
                 }
-                
-                
-                
-                <Button variant="primary" type="button" onClick={() => { 
-                    if (window.confirm('Are you sure you want to create/update this contact?')) 
-                        this.handleSubmit() }}>
-                    {this.state.modForm}
-                </Button>   
             
                 {
                     this.state.modForm === "Update contact" ? 
-                        <Button variant="primary" type="button" onClick={() => { 
+                    <div style={{ marginBottom: '20px' }}>
+                        <Button 
+                            variant="contained" 
+                            color="primary"
+                            startIcon={<CreateIcon />}
+                            onClick={() => { 
+                                    if (window.confirm('Are you sure you want to update this contact?')) 
+                            this.handleSubmit() }}>
+                        {this.state.modForm}
+                        </Button>   
+
+                        <Button 
+                        variant="contained"
+                            color="secondary"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => { 
                                 if (window.confirm('Are you sure you want to delete this contact?'))
-                            this.deleteContact()}}>
-                            Delete contact
-                        </Button> : ""
+                                    this.deleteContact()}}>
+                                    Delete contact
+                        </Button> 
+                        </div>
+                        : 
+                        <div style={{ marginBottom: '20px' }}>
+                        <Button 
+                            variant="contained" 
+                            color="primary"
+                            startIcon={<PersonAddIcon />}
+                            onClick={() => { 
+                                if (window.confirm('Are you sure you want to create this contact?')) 
+                            this.handleSubmit() }}>
+                    {this.state.modForm}
+                </Button>   
+                </div>
                 }
                 
             </Form>

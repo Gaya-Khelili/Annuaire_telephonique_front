@@ -1,5 +1,8 @@
 import React from "react"
-import {Button} from "react-bootstrap"
+import Button from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+
 
 function TableContent(props){
     
@@ -11,10 +14,16 @@ function TableContent(props){
                 <td>{props.contact.lname}</td>
                 <td>{props.contact.email}</td>
                 <td>
-                    <Button variant="outline-info" onClick={() =>  
-                        props.handleStateHeaderChange("detailsContact",props.contact.idContact)}>Details</Button>
+                    <Button variant="contained" 
+                            color="primary"
+                            startIcon={<AccountCircleIcon />}
+                        onClick={() =>  
+                            props.handleStateHeaderChange("detailsContact",props.contact.idContact)}>Details</Button>
 
-                    <Button variant="outline-info" onClick={() => {
+                    <Button variant="contained"
+                            color="secondary"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => {
                         if (window.confirm('Are you sure you want to delete this contact?'))
                         deleteContact(props.contact.idContact,props)   
                         }}>Delete</Button>
