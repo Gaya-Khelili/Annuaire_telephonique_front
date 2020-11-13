@@ -4,36 +4,35 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 
-function TableContent(props){
+function TableContentGroup(props){
     
     return (
            
             <tr>
-                <td>{props.contact.idContact}</td>
-                <td>{props.contact.fname}</td>
-                <td>{props.contact.lname}</td>
-                <td>{props.contact.email}</td>
+                <td>{props.contactGroup.groupId}</td>
+                <td>{props.contactGroup.groupName}</td>
                 <td>
                     <Button variant="contained" 
                             color="primary"
                             startIcon={<AccountCircleIcon />}
                         onClick={() =>  
-                            props.handleStateHeaderChange("detailsContact",props.contact.idContact)}>Details</Button>
-                            
+                            props.handleStateHeaderChange("detailsContactGroup",props.contactGroup.groupId)}>Details</Button>
+
                     <Button variant="contained"
                             color="secondary"
                             startIcon={<DeleteIcon />}
                             onClick={() => {
-                        if (window.confirm('Are you sure you want to delete this contact?'))
-                        deleteContact(props.contact.idContact,props)   
+                        if (window.confirm('Are you sure you want to delete this contact group?'))
+                        deleteContactGroup(props.contactGroup.groupId,props)   
                         }}>Delete</Button>
                 </td>
             </tr>
     )
 }
 
-function deleteContact(idContact,props){
-    fetch("http://localhost:8080/api/contact/"+idContact, {
+function deleteContactGroup(groupId,props){
+    
+    fetch("http://localhost:8080/api/groupContact/"+groupId, {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
                     "Content-Type": "application/json"
@@ -48,4 +47,4 @@ function deleteContact(idContact,props){
             });
 }
 
-export default TableContent
+export default TableContentGroup

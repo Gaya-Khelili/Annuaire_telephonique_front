@@ -23,10 +23,10 @@ class Header extends React.Component{
             <Nav.Link href="#manage_contacts" onClick={() => this.props.handleStateHeaderChange("manageContacts","allContacts")}>
                 Manage contacts</Nav.Link>
 
-            <Nav.Link href="#create_group" onClick={() => this.props.handleStateHeaderChange("createGroup","")}>
+            <Nav.Link href="#create_group" onClick={() => this.props.handleStateHeaderChange("createGroup","allContacts")}>
                 Create group</Nav.Link>
 
-            <Nav.Link href="#manage_groups" onClick={() => this.props.handleStateHeaderChange("manageGroups","")}>
+            <Nav.Link href="#manage_groups" onClick={() => this.props.handleStateHeaderChange("manageGroups","allContactGroups")}>
                 Manage groups</Nav.Link>
 
           </Nav>

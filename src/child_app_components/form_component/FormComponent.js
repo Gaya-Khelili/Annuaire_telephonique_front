@@ -44,6 +44,7 @@ class FormComponent extends React.Component{
     
         if (this.props.caller === "detailsContact") {
             this.setState({modForm:"Update contact"})
+            console.log("idContact "+this.props.idContact)
             this.getContactInfo(this.props.idContact)
             this.getAddressInfo(this.props.idContact)
             this.getPhoneInfo(this.props.idContact)
@@ -150,6 +151,7 @@ class FormComponent extends React.Component{
                 })
             })
             .then(response => {
+                
                     this.setState({idContact:response.idContact})
                     this.props.handleStateHeaderChange("manageContacts","allContacts")
             })

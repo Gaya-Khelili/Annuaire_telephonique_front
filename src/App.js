@@ -44,9 +44,18 @@ class App extends React.Component {
                 return <ManageContacts handleStateHeaderChange={this.handleStateHeaderChange} 
                                   modSelection={this.state.parameter === "" ? "allContacts" : this.state.parameter}/>;
             case "createGroup":
-                return <CreateGroup />;
+                return <CreateGroup  modForm="createGroup" groupId="" 
+                handleStateHeaderChange={this.handleStateHeaderChange}/>;
+        case "detailsContactGroup":
+          return <CreateGroup modForm="detailsContactGroup" groupId={this.state.parameter}
+                  handleStateHeaderChange={this.handleStateHeaderChange}/>;
+
             case "manageGroups":
-              return <ManageGroups />;
+              return <ManageGroups handleStateHeaderChange={this.handleStateHeaderChange} 
+                                    modSelection={this.state.parameter === "" ? "allContactGroups" : this.state.parameter}/>;
+            case "manageContactGroupsUpdated":
+                return <ManageContacts handleStateHeaderChange={this.handleStateHeaderChange} 
+                                  modSelection={this.state.parameter === "" ? "allContactGroups" : this.state.parameter}/>;
             default : 
               return <Notice />
 

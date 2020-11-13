@@ -1,23 +1,15 @@
 import React from "react"
+import FormComponentGroup from "../child_app_components/form_component_group/FormComponentGroup"
 
-class CreateGroup extends React.Component{
+function CreateGroup(props){
 
-    constructor(){
-        super()
-    }
-
-    componentDidMount(){
-        console.log("load create group")
-    }
-
-    render(){
-        return (
-            <div>
-                <h1>Dans Create group</h1>
-            </div>
-            
-        )
-    }    
+    return (
+        <div>
+            <FormComponentGroup caller={props.modForm} groupId={props.groupId} 
+                    handleStateHeaderChange={props.handleStateHeaderChange}/>
+        </div>
+        
+    )
 }
 
 export default CreateGroup
