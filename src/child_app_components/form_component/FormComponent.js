@@ -26,14 +26,17 @@ class FormComponent extends React.Component{
             country:"",
             kind:"Perso",
             number:"",
-            phones: [{idPhone:"",phoneNumber:"",phoneKind:"Perso"}]
+            phones: [{idPhone:"",phoneNumber:"",phoneKind:"Perso"}],
+            contactGroups: [{groupId:"",groupName:""}]
         }
 
         this.getContactInfo = this.getContactInfo.bind(this)
         this.getAddressInfo = this.getAddressInfo.bind(this)
         this.getPhoneInfo = this.getPhoneInfo.bind(this)
+        this.getGroupInfo = this.getGroupInfo.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handlePhoneChange = this.handlePhoneChange.bind(this)
+        this.handleGroupChange = this.handleGroupChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this)
         this.createContact = this.createContact.bind(this)
         this.updateContact = this.updateContact.bind(this)
@@ -48,6 +51,7 @@ class FormComponent extends React.Component{
             this.getContactInfo(this.props.idContact)
             this.getAddressInfo(this.props.idContact)
             this.getPhoneInfo(this.props.idContact)
+           // this.getGroupInfo(this.props.idContact)
         }
         else {
             this.setState({modForm:"Create contact"}) 
@@ -92,6 +96,18 @@ class FormComponent extends React.Component{
         })
         .catch(err => {throw new Error(err)})
     }
+    getGroupInfo(idContact){
+        console.log("id contact dans froup"+idContact)
+        fetch("http://localhost:8080/api/contactGroupbycontact/"+idContact)
+        
+        .then(response => response.json())
+        .then(data => {
+            
+            this.setState({contactGroup:data})
+        })
+        .catch(err => {throw new Error(err)}) 
+       
+    } 
 
     handleChange(event){
         const {name,value} = event.target
@@ -130,6 +146,34 @@ class FormComponent extends React.Component{
         });
       };
 
+      //  ajout des groups dans contact 
+    
+      handleGroupChange = idx => evt => {
+        const newGroups = this.state.contactGroups.map((contactGroup, sidx) => {
+          if (idx !== sidx) return contactGroup;
+          return { ...contactGroup, [evt.target.name]: evt.target.value };
+        });
+    
+        this.setState({ contactGroups: newGroups });
+      };
+
+      handleAddGroup = () => {
+        this.setState({
+            contactGroups: this.state.contactGroups.concat([{ groupName: "" }])
+        });
+      };
+    
+      handleRemoveGroup = idx => () => {
+        this.setState({
+            contactGroups: this.state.contactGroups.filter((g, sidx) => idx !== sidx)
+        });
+      };
+      
+
+
+      
+      // CRUD Contact                          
+                                
     createContact(){
         fetch("http://localhost:8080/api/contact/fullcontact", {
                 headers: {
@@ -147,7 +191,8 @@ class FormComponent extends React.Component{
                         zip:this.state.zip,
                         country:this.state.country
                     },
-                    phones:this.state.phones
+                    phones:this.state.phones,
+                    contactGroups:this.state.contactGroups
                 })
             })
             .then(response => {
@@ -178,7 +223,8 @@ class FormComponent extends React.Component{
                         zip:this.state.zip,
                         country:this.state.country
                     },
-                    phones:this.state.phones
+                    phones:this.state.phones,
+                    contactGroups:this.state.contactGroups
                 })
             })
             .then(response => {
@@ -303,6 +349,42 @@ class FormComponent extends React.Component{
                     ))}
                        </Form.Row>
                        </div>
+
+                    
+                       <div >
+                        
+                        <Button
+                                variant="contained"
+                                color="secondary"
+                                startIcon={<AddCircleIcon />}
+                                onClick={this.handleAddGroup}
+                            >
+                                Add group
+                            </Button>
+                    <br></br>
+                    <Form.Row>
+                    {this.state.contactGroups.map((contactGroup, idx) => (
+                        <div className="contactGroup" class="border" style={{ marginRight: '10px' ,
+                                                     marginBottom: '10px'}}>
+                         
+                            <Form.Group as={Col} controlId="formGridcontactGroups">
+                                <Form.Label>Group name</Form.Label>
+                                <Form.Control placeholder={`Group name #${idx + 1}`}
+                                    value={contactGroup.groupName} name="groupName" onChange={this.handleGroupChange(idx)}/>
+                                </Form.Group>
+                                
+                                <IconButton aria-label="delete"
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={this.handleRemoveGroup(idx)}>
+                                     <DeleteIcon />
+                                 </IconButton>
+                                
+                        </div>
+                    ))}
+                       </Form.Row>
+                       </div>
+            
             
                 {
                     this.state.modForm === "Update contact" ? 

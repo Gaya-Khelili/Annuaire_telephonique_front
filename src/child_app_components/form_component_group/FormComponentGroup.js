@@ -10,7 +10,7 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import CreateIcon from '@material-ui/icons/Create';
 import TextField from '@material-ui/core/TextField';
 import Table from 'react-bootstrap/Table'
-
+import MultiSelect from "react-multi-select-component";
 
 
 class FormComponentGroup extends React.Component{
@@ -25,12 +25,13 @@ class FormComponentGroup extends React.Component{
             values:[],
             lname:"",
             fname:"",
-            email:""
+            email:"",
+            contact: [{idContact:"1",lname:"bff", fname:"fgfg",email:"fggf"}]
            
         }
         
         
-      // this.getGroup = this.getGroup.blind(this)
+        //this.getGroup = this.getGroup.blind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.createContactGroup = this.createContactGroup.bind(this)
@@ -88,16 +89,18 @@ class FormComponentGroup extends React.Component{
         
     }
     handleChangeSelection = (e) => {
+
         let value = Array.from(e.target.selectedOptions, option => option.value);
-        this.setState({values: value});
-        this.setState({idContact: value.idCOntact,lname: value.lname, fname: value.fname, email: value.email})
+        console.log("c"+value.idContact)
+       this.setState({contact: value});
+       
       }
 
 
 
     createContactGroup(){
         
-        fetch("http://localhost:8080/api/groupContact", {
+        fetch("http://localhost:8080/api/groupContact/fullcontactgroup", {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
                     "Content-Type": "application/json"
@@ -105,16 +108,11 @@ class FormComponentGroup extends React.Component{
                 method: 'POST',
                 body : JSON.stringify({
                     groupName:this.state.groupName,
-                    contact:{
-                        idContact:this.state.idContact,
-                        fname:this.state.fname,
-                        lname:this.state.lname,
-                        email:this.state.email
-                    }
+                    contact:this.contact
                 })
             })
             .then(response => {
-                    console.log("je suis à response"+response.groupId)
+                
                     this.setState({groupId:response.groupId})
                     this.props.handleStateHeaderChange("manageGroups","allContactGroups")
             })
@@ -161,10 +159,10 @@ class FormComponentGroup extends React.Component{
             });
     }
     
-    buildContactComponent(event){
+    buildContactComponent(e){
         
        
-        const contactsComponent =  <div>
+        const contactsComponent = ( <div>
         <label>       
               < select name="selectOptions" multiple={true} onChange={this.handleChangeSelection}  value={this.state.selectOptions}>
                       { this.state.allContact.map(item => 
@@ -172,7 +170,8 @@ class FormComponentGroup extends React.Component{
                         )  }
               </select>
         </label>
-        </div>
+        </div>)
+        
                 
                 
         return contactsComponent
@@ -180,7 +179,28 @@ class FormComponentGroup extends React.Component{
               
        
     }
-
+    /**
+    MultipleSelect() {
+        const classes = useStyles();
+        const theme = useTheme();
+        const [personName, setPersonName] = React.useState([]);
+      
+        const handleChange = (event) => {
+          setPersonName(event.target.value);
+        };
+      
+        const handleChangeMultiple = (event) => {
+          const { options } = event.target;
+          const value = [];
+          for (let i = 0, l = options.length; i < l; i += 1) {
+            if (options[i].selected) {
+              value.push(options[i].value);
+            }
+          }
+          setPersonName(value);
+        };
+    }
+ */
    
     render(){
         return(
