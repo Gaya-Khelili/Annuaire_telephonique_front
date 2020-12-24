@@ -1,17 +1,14 @@
 import React from "react"
-import {Form,Col} from "react-bootstrap"
+import {Form,Col,InputGroup} from "react-bootstrap"
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
-import IconButton from '@material-ui/core/IconButton';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import CreateIcon from '@material-ui/icons/Create';
-import TextField from '@material-ui/core/TextField';
-import Table from 'react-bootstrap/Table'
-import MultiSelect from "react-multi-select-component";
-
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 
 class FormComponentGroup extends React.Component{
     constructor(props){
@@ -21,17 +18,15 @@ class FormComponentGroup extends React.Component{
             groupId:"",
             groupName:"",
             idContact:"",
-            allContact:[],
-            values:[],
+            contacts:[{idContact:"",lname:"",fname:"",email:""}],
             lname:"",
             fname:"",
-            email:"",
-            contact: [{idContact:"1",lname:"bff", fname:"fgfg",email:"fggf"}]
-           
+            email:""
         }
         
         
-        //this.getGroup = this.getGroup.blind(this)
+        
+        this.getContactInfo = this.getContactInfo.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.createContactGroup = this.createContactGroup.bind(this)
@@ -45,26 +40,40 @@ class FormComponentGroup extends React.Component{
         if (this.props.caller === "detailsContactGroup") {
             this.setState({modForm:"Update contact group"})
             console.log("group id "+this.props.groupId)
-             this.getGroup(this.props.groupId)
+            this.getGroupInfo(this.props.groupId)
+            this.getContactInfo(this.props.groupId)
         }
+        else if(this.props.caller === "deleteContactGroup"){
+            this.deleteContactGroup(this.props.groupId)
+    }
         else {
-            fetch("http://localhost:8080/api/contact/")
+
+            fetch("http://localhost:8080/api/contact")
             .then(response => response.json())
             .then(data => {
-                this.setState({allContact:data})
+                this.setState({contacts:data})
             })
             .catch(err => {throw new Error(err)})
             this.setState({modForm:"Create group"}) 
         }
     }
 
-    
-    getGroup(groupId){
-        fetch("http://localhost:8080/api/groupContact/"+groupId)
-        
+    getContactInfo(groupId){
+        fetch("http://localhost:8080/api/contact/contactbycontactGroup/"+groupId)
         .then(response => response.json())
         .then(data => {
-            console.log(data)
+            console.log("id contact "+data.idContact)
+           
+                 this.setState({contacts:data})
+    
+            
+        })
+        .catch(err => {throw new Error(err)})
+    }
+    getGroupInfo(groupId){
+        fetch("http://localhost:8080/api/groupContact/"+groupId)
+        .then(response => response.json())
+        .then(data => {
             this.setState({
                 groupId:groupId,
                 groupName:data.groupName})
@@ -88,15 +97,6 @@ class FormComponentGroup extends React.Component{
         }
         
     }
-    handleChangeSelection = (e) => {
-
-        let value = Array.from(e.target.selectedOptions, option => option.value);
-        console.log("c"+value.idContact)
-       this.setState({contact: value});
-       
-      }
-
-
 
     createContactGroup(){
         
@@ -108,7 +108,7 @@ class FormComponentGroup extends React.Component{
                 method: 'POST',
                 body : JSON.stringify({
                     groupName:this.state.groupName,
-                    contact:this.contact
+                    contacts:this.state.contacts
                 })
             })
             .then(response => {
@@ -131,7 +131,8 @@ class FormComponentGroup extends React.Component{
                   },
                 method: 'PUT',
                 body : JSON.stringify({
-                    groupName:this.state.groupName
+                    groupName:this.state.groupName,
+                    contacts:this.state.contacts
                 })
             })
             .then(response => {
@@ -158,78 +159,70 @@ class FormComponentGroup extends React.Component{
                 console.log(err);
             });
     }
-    
-    buildContactComponent(e){
-        
-       
-        const contactsComponent = ( <div>
-        <label>       
-              < select name="selectOptions" multiple={true} onChange={this.handleChangeSelection}  value={this.state.selectOptions}>
-                      { this.state.allContact.map(item => 
-                   <option value={item}>Contact {item.idContact} : First Name {item.fname} Last Name {item.lname} Email {item.email}</option>
-                        )  }
-              </select>
-        </label>
-        </div>)
-        
-                
-                
-        return contactsComponent
-
-              
-       
-    }
-    /**
-    MultipleSelect() {
-        const classes = useStyles();
-        const theme = useTheme();
-        const [personName, setPersonName] = React.useState([]);
-      
-        const handleChange = (event) => {
-          setPersonName(event.target.value);
-        };
-      
-        const handleChangeMultiple = (event) => {
-          const { options } = event.target;
-          const value = [];
-          for (let i = 0, l = options.length; i < l; i += 1) {
-            if (options[i].selected) {
-              value.push(options[i].value);
-            }
-          }
-          setPersonName(value);
-        };
-    }
- */
+     
    
+
+    onSelectionChanged=(event)=>{
+        console.log(this.state.contacts)
+        console.log("la colonne selectionné "+event.api.getSelectedRows().idContact)
+        this.setState({
+                contacts : event.api.getSelectedRows()
+        })
+        console.log(this.state.contacts)
+     }
+     onGridReady = (params) => {
+            console.log("grid is ready"+this.state.contacts)
+         fetch("http://localhost:8080/api/contact/").then(resp => resp.json())
+              .then(resp => {
+                console.log(resp)
+                params.api.applyTransaction({ add: this.state.contacts  }) //adding API data to grid
+              })
+
+    }
+     
+    
     render(){
         return(
             <Form>
                
                 <div class="border border-primary" style={{ marginBottom: '40px' }}>
                     <Form.Row>
-                    <Form.Group as={Col} controlId="formGridFname">
+                     <Form.Group as={Col} controlId="formGridFname">
                         
-                    <Form.Label>Group Name</Form.Label>
-                    <Form.Control type="text" placeholder="Group Name" 
+                       <Form.Label>Group Name</Form.Label>
+                        <Form.Control type="text" placeholder="Group Name" 
                             value={this.state.groupName} name="groupName" onChange={this.handleChange}/>
-                 </Form.Group>
+                     </Form.Group>
                     </Form.Row>
                     <Form.Row> 
-                        <Form.Label>Please, choose any contact you want to add in the new group</Form.Label>
-                                <tbody>
-                                     {this.buildContactComponent()}
-                                </tbody>
-                       
+                        <Form.Group as={Col} controlId="formGridTitleContact">
+                             <h1><strong>Please, choose any contact you want to add in the new group</strong></h1>
+                        </Form.Group>
                     </Form.Row>
-                   
-                    
+                        <Form.Row>
+                             <div className="ag-theme-alpine" style={{ height: '200px',  width: '1400px'}}>
+                                        <AgGridReact
+                                        columnDefs={[
+                                            { headerName: "Id", field: "idContact", checkboxSelection:true,headerCheckboxSelection:true },
+                                            { headerName: "Last name", field: "lname",},
+                                            { headerName: "First name", field: "fname", },
+                                            { headerName: "Email", field: "email", },
+                                          ]}
+                                        defaultColDef={{sortable: true,
+                                            editable: true,
+                                            flex: 1, filter: true,
+                                            floatingFilter: true
+                                         } }
+                                        onGridReady={this.onGridReady}
+                                        rowSelection={'multiple'}
+                                        onSelectionChanged={this.onSelectionChanged}
+                                        rowMultiSelectWithClick={true}
+                                        >
+                                        </AgGridReact>
+                            </div> 
+                          </Form.Row>  
                 </div>
-            
-                    
-            
                 {
-
                     this.state.modForm === "Update contact group" ? 
                     <div style={{ marginBottom: '20px' }}>
                         <Button 
@@ -260,9 +253,8 @@ class FormComponentGroup extends React.Component{
                             startIcon={<PersonAddIcon />}
                             onClick={() => { 
                                 if (window.confirm('Are you sure you want to create this contact group?')) 
-                            this.handleSubmit()  }}>
-                    
-                </Button>   
+                            this.handleSubmit()  }}> Create Group
+                        </Button>  
                 </div>
                 }
                 

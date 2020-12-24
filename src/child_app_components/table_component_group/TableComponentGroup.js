@@ -24,6 +24,7 @@ function TableContentGroup(props){
                             onClick={() => {
                         if (window.confirm('Are you sure you want to delete this contact group?'))
                         deleteContactGroup(props.contactGroup.groupId,props)   
+                       // props.handleStateHeaderChange("deleteContactGroup",props.contactGroup.groupId)
                         }}>Delete</Button>
                 </td>
             </tr>

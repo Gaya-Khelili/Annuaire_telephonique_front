@@ -18,6 +18,7 @@ class ManageContacts extends React.Component{
             fetch("http://localhost:8080/api/contact/")
             .then(response => response.json())
             .then(data => {
+                console.log(data)
                 this.setState({allContact:data})
             })
             .catch(err => {throw new Error(err)})

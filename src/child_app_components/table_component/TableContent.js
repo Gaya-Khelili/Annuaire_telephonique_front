@@ -25,6 +25,7 @@ function TableContent(props){
                             startIcon={<DeleteIcon />}
                             onClick={() => {
                         if (window.confirm('Are you sure you want to delete this contact?'))
+                        
                         deleteContact(props.contact.idContact,props)   
                         }}>Delete</Button>
                 </td>

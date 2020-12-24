@@ -47,11 +47,13 @@ class FormComponent extends React.Component{
     
         if (this.props.caller === "detailsContact") {
             this.setState({modForm:"Update contact"})
-            console.log("idContact "+this.props.idContact)
             this.getContactInfo(this.props.idContact)
             this.getAddressInfo(this.props.idContact)
             this.getPhoneInfo(this.props.idContact)
-           // this.getGroupInfo(this.props.idContact)
+            this.getGroupInfo(this.props.idContact)
+        }
+        else if(this.props.caller === "deleteContact"){
+                this.deleteContact(this.props.idContact)
         }
         else {
             this.setState({modForm:"Create contact"}) 
@@ -98,12 +100,12 @@ class FormComponent extends React.Component{
     }
     getGroupInfo(idContact){
         console.log("id contact dans froup"+idContact)
-        fetch("http://localhost:8080/api/contactGroupbycontact/"+idContact)
-        
+        fetch("http://localhost:8080/api/groupContact/contactGroupbycontact/"+idContact)
+       
         .then(response => response.json())
         .then(data => {
-            
-            this.setState({contactGroup:data})
+            console.log("id"+data)
+            this.setState({contactGroups:data})
         })
         .catch(err => {throw new Error(err)}) 
        
