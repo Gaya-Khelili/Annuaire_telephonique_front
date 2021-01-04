@@ -10,6 +10,7 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 
+
 class FormComponentGroup extends React.Component{
     constructor(props){
         super(props)
@@ -32,32 +33,46 @@ class FormComponentGroup extends React.Component{
         this.createContactGroup = this.createContactGroup.bind(this)
         this.updateContactGroup = this.updateContactGroup.bind(this)
         this.deleteContactGroup = this.deleteContactGroup.bind(this)
+        this.getAllContactInfo = this.getAllContactInfo.bind(this)
+        this.getGroupInfo = this.getGroupInfo.bind(this)
     }
 
 
     componentDidMount(){
         
         if (this.props.caller === "detailsContactGroup") {
+            console.log("detail group contact")
             this.setState({modForm:"Update contact group"})
-            console.log("group id "+this.props.groupId)
             this.getGroupInfo(this.props.groupId)
             this.getContactInfo(this.props.groupId)
         }
         else if(this.props.caller === "deleteContactGroup"){
             this.deleteContactGroup(this.props.groupId)
-    }
+        }
+        else if(this.props.caller === "addContact"){
+            console.log("add contact")
+            this.setState({modForm:"Add contacts to the group"})
+            this.getAllContactInfo()
+        }
+        else if(this.props.caller === "deleteContact"){
+            this.setState({modForm:"Delete contacts"})
+            this.getAllContactInfo()
+        }
         else {
-
-            fetch("http://localhost:8080/api/contact")
-            .then(response => response.json())
-            .then(data => {
-                this.setState({contacts:data})
-            })
-            .catch(err => {throw new Error(err)})
+            this.setState({modForm:"Create contact group"})
+            this.getAllContactInfo()
             this.setState({modForm:"Create group"}) 
         }
     }
+    getAllContactInfo(){
+        fetch("http://localhost:8080/api/contact")
+        .then(response => response.json())
+        .then(data => {
+            this.setState({contacts:data})
+        })
+        .catch(err => {throw new Error(err)})
 
+    }
     getContactInfo(groupId){
         fetch("http://localhost:8080/api/contact/contactbycontactGroup/"+groupId)
         .then(response => response.json())
@@ -89,12 +104,9 @@ class FormComponentGroup extends React.Component{
 
     handleSubmit(modeButton){
 
-        if (this.state.modForm==="Create group"){
+       
            this.createContactGroup()
-        }
-        else {
-            this.updateContactGroup()
-        }
+        
         
     }
 
@@ -122,8 +134,9 @@ class FormComponentGroup extends React.Component{
            
     }
 
+
     updateContactGroup(){
-        console.log(" update contact group")
+        
         fetch("http://localhost:8080/api/groupContact/" + this.state.groupId, {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
@@ -143,8 +156,31 @@ class FormComponentGroup extends React.Component{
             });
     }
 
+    addContact(){
+        fetch("http://localhost:8080/api/groupContact/fullcontactgroup" , {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json"
+              },
+            method: 'PUT',
+            body : JSON.stringify({
+                groupId:this.state.groupId,
+                groupName:this.state.groupName,
+                contacts:this.state.contacts
+            })
+        })
+        .then(response => {
+            this.props.handleStateHeaderChange("manageGroups","allContactGroups")
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
+
+    }
+
     deleteContactGroup(){
-        console.log(this.state.groupId)
+
         fetch("http://localhost:8080/api/groupContact/"+this.state.groupId, {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
@@ -159,7 +195,17 @@ class FormComponentGroup extends React.Component{
                 console.log(err);
             });
     }
-     
+    
+    hundleDeleteContact = idx => () => {
+        this.setState({
+            contacts: this.state.contacts.filter((c, sidx) => idx !== sidx)
+        });
+      };
+      hundleAddAnotherContact = () => {
+        this.setState({
+          contacts: this.state.contacts.concat([{idContact:"",lname:"",fname:"",email:""}])
+        });
+      };
    
 
     onSelectionChanged=(event)=>{
@@ -170,6 +216,9 @@ class FormComponentGroup extends React.Component{
         })
         console.log(this.state.contacts)
      }
+
+
+
      onGridReady = (params) => {
             console.log("grid is ready"+this.state.contacts)
          fetch("http://localhost:8080/api/contact/").then(resp => resp.json())
@@ -179,12 +228,120 @@ class FormComponentGroup extends React.Component{
               })
 
     }
+    
+ 
      
     
     render(){
+
+        
+           if(this.state.modForm === "Add contacts to the group" ){
+
+            return(
+                
+                <div style={{ marginBottom: '20px' }}>
+
+            <div>
+            <Form.Row> 
+                <Form.Group as={Col} controlId="formGridTitleContact">
+                    <h1><strong>Please, choose any contacts you want to add in this group</strong></h1>
+                </Form.Group>
+            </Form.Row>
+                <Form.Row>
+                    <div className="ag-theme-alpine" style={{ height: '500px',  width: '2000px'}}>
+                                <AgGridReact
+                                columnDefs={[
+                                    { headerName: "Id", field: "idContact", checkboxSelection:true,headerCheckboxSelection:true },
+                                    { headerName: "Last name", field: "lname",},
+                                    { headerName: "First name", field: "fname", },
+                                    { headerName: "Email", field: "email", },
+                                ]}
+                                defaultColDef={{sortable: true,
+                                    editable: true,
+                                    flex: 1, filter: true,
+                                    floatingFilter: true
+                                } }
+                                onGridReady={this.onGridReady}
+                                rowSelection={'multiple'}
+                                onSelectionChanged={this.onSelectionChanged}
+                                rowMultiSelectWithClick={true}
+                                >
+                                </AgGridReact>
+                    </div> 
+                
+                        </Form.Row>
+                        
+                        <div style={{ marginBottom: '20px' }}>
+                                        <Button 
+                                        variant="contained" 
+                                        color="secondary"
+                                        startIcon={<PersonAddIcon />}
+                                        onClick={() => { 
+                                            if (window.confirm('Are you sure you want to add those contacts in this group?')) 
+                                        this.addContact()  }}> Add contacts
+                                    </Button> 
+                     </div>
+                        </div>
+
+                </div>
+                )
+
+            }
+        else if(this.state.modForm === "Delete contacts" ){
+                return(
+                    <div style={{ marginBottom: '20px' }}>
+
+                    <div>
+                    <Form.Row> 
+                        <Form.Group as={Col} controlId="formGridTitleContact">
+                            <h1><strong>Please, choose any contacts you want to delete from this group</strong></h1>
+                        </Form.Group>
+                    </Form.Row>
+                        <Form.Row>
+                            <div className="ag-theme-alpine" style={{ height: '500px',  width: '2000px'}}>
+                                        <AgGridReact
+                                        columnDefs={[
+                                            { headerName: "Id", field: "idContact", checkboxSelection:true,headerCheckboxSelection:true },
+                                            { headerName: "Last name", field: "lname",},
+                                            { headerName: "First name", field: "fname", },
+                                            { headerName: "Email", field: "email", },
+                                        ]}
+                                        defaultColDef={{sortable: true,
+                                            editable: true,
+                                            flex: 1, filter: true,
+                                            floatingFilter: true
+                                        } }
+                                        onGridReady={this.onGridReady}
+                                        rowSelection={'multiple'}
+                                        onSelectionChanged={this.onSelectionChanged}
+                                        rowMultiSelectWithClick={true}
+                                        >
+                                        </AgGridReact>
+                            </div> 
+                        
+                                </Form.Row>
+                                
+                                <div style={{ marginBottom: '20px' }}>
+                                                <Button 
+                                                variant="contained" 
+                                                color="secondary"
+                                                startIcon={<PersonAddIcon />}
+                                                onClick={() => { 
+                                                    if (window.confirm('Are you sure you want to add those contacts in this group?')) 
+                                                this.deleteContact()  }}> Delete contacts
+                                            </Button> 
+                             </div>
+                                </div>
+        
+                        </div>               
+                )
+        }
+        else{
         return(
+
             <Form>
-               
+           
+
                 <div class="border border-primary" style={{ marginBottom: '40px' }}>
                     <Form.Row>
                      <Form.Group as={Col} controlId="formGridFname">
@@ -194,13 +351,16 @@ class FormComponentGroup extends React.Component{
                             value={this.state.groupName} name="groupName" onChange={this.handleChange}/>
                      </Form.Group>
                     </Form.Row>
+                 </div>
+                    <div style={{ marginBottom: '20px' }}>
+
                     <Form.Row> 
                         <Form.Group as={Col} controlId="formGridTitleContact">
                              <h1><strong>Please, choose any contact you want to add in the new group</strong></h1>
                         </Form.Group>
                     </Form.Row>
                         <Form.Row>
-                             <div className="ag-theme-alpine" style={{ height: '200px',  width: '1400px'}}>
+                             <div className="ag-theme-alpine" style={{ height: '500px',  width: '2000px'}}>
                                         <AgGridReact
                                         columnDefs={[
                                             { headerName: "Id", field: "idContact", checkboxSelection:true,headerCheckboxSelection:true },
@@ -220,18 +380,28 @@ class FormComponentGroup extends React.Component{
                                         >
                                         </AgGridReact>
                             </div> 
-                          </Form.Row>  
-                </div>
+                        
+                          </Form.Row>
+                              </div>
+        
+                          
+                 
+                
                 {
-                    this.state.modForm === "Update contact group" ? 
+                 this.state.modForm === "Update contact group" ?  
+                    
                     <div style={{ marginBottom: '20px' }}>
+                       <div>
+                
+   
+                        </div>
                         <Button 
                             variant="contained" 
                             color="primary"
                             startIcon={<CreateIcon />}
                             onClick={() => { 
                                     if (window.confirm('Are you sure you want to update this contact group?')) 
-                            this.handleSubmit() }}>
+                            this.updateContactGroup() }}>
                         {this.state.modForm}
                         </Button>   
 
@@ -245,6 +415,7 @@ class FormComponentGroup extends React.Component{
                                     Delete contact group
                         </Button> 
                         </div>
+                      
                         : 
                         <div style={{ marginBottom: '20px' }}>
                         <Button 
@@ -255,12 +426,12 @@ class FormComponentGroup extends React.Component{
                                 if (window.confirm('Are you sure you want to create this contact group?')) 
                             this.handleSubmit()  }}> Create Group
                         </Button>  
-                </div>
-                }
-                
+                         </div>
+            }
             </Form>
 
         )
+        }
     }
 }
 

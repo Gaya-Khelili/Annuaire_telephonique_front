@@ -12,6 +12,18 @@ function TableContentGroup(props){
                 <td>{props.contactGroup.groupId}</td>
                 <td>{props.contactGroup.groupName}</td>
                 <td>
+                <Button variant="contained" 
+                            color="primary"
+                            startIcon={<AccountCircleIcon />}
+                        onClick={() =>  
+                            props.handleStateHeaderChange("addContact",props.contactGroup.groupId)}>Add Contacts</Button>
+                            
+                            <Button variant="contained" 
+                            color="primary"
+                            startIcon={<AccountCircleIcon />}
+                        onClick={() =>  
+                            props.handleStateHeaderChange("deleteContact",props.contactGroup.groupId)}>Delete Contacts</Button>
+
                     <Button variant="contained" 
                             color="primary"
                             startIcon={<AccountCircleIcon />}
@@ -23,7 +35,7 @@ function TableContentGroup(props){
                             startIcon={<DeleteIcon />}
                             onClick={() => {
                         if (window.confirm('Are you sure you want to delete this contact group?'))
-                        deleteContactGroup(props.contactGroup.groupId,props)   
+                          deleteContactGroup(props.contactGroup.groupId,props)   
                        // props.handleStateHeaderChange("deleteContactGroup",props.contactGroup.groupId)
                         }}>Delete</Button>
                 </td>
