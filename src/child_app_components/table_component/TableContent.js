@@ -9,7 +9,7 @@ function TableContent(props){
     return (
            
             <tr>
-                <td>{props.contact.idContact}</td>
+               
                 <td>{props.contact.fname}</td>
                 <td>{props.contact.lname}</td>
                 <td>{props.contact.email}</td>

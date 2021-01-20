@@ -258,7 +258,7 @@ class FormComponent extends React.Component{
     render(){
         return(
             <Form>
-                <div class="border border-primary" style={{ marginBottom: '40px' }}>
+                <div className="border border-primary" style={{ marginBottom: '40px' }}>
                     <Form.Row>
                     <Form.Group as={Col} controlId="formGridFname">
                         
@@ -281,7 +281,7 @@ class FormComponent extends React.Component{
                     </Form.Row>
                 </div>
                 
-                <div class="border border-primary" style={{ marginBottom: '25px' }}>
+                <div className="border border-primary" style={{ marginBottom: '25px' }}>
                 <Form.Group controlId="formGridStreet">
                     <Form.Label>Address</Form.Label>
                     <Form.Control placeholder="Address" 
@@ -322,7 +322,7 @@ class FormComponent extends React.Component{
                     <br></br>
                     <Form.Row>
                     {this.state.phones.map((phone, idx) => (
-                        <div className="phone" class="border" style={{ marginRight: '10px' ,
+                        <div className="phone" className="border" style={{ marginRight: '10px' ,
                                                      marginBottom: '10px'}}>
                          
                             <Form.Group as={Col} controlId="formGridPhoneNumber">
@@ -366,7 +366,7 @@ class FormComponent extends React.Component{
                     <br></br>
                     <Form.Row>
                     {this.state.contactGroups.map((contactGroup, idx) => (
-                        <div className="contactGroup" class="border" style={{ marginRight: '10px' ,
+                        <div className="contactGroup" className="border" style={{ marginRight: '10px' ,
                                                      marginBottom: '10px'}}>
                          
                             <Form.Group as={Col} controlId="formGridcontactGroups">

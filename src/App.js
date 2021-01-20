@@ -43,6 +43,7 @@ class App extends React.Component {
             case "manageContactsUpdated":
                 return <ManageContacts handleStateHeaderChange={this.handleStateHeaderChange} 
                                   modSelection={this.state.parameter === "" ? "allContacts" : this.state.parameter}/>;
+
             case "createGroup":
                 return <CreateGroup  modForm="createGroup" groupId="" 
                 handleStateHeaderChange={this.handleStateHeaderChange}/>;
