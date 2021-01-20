@@ -5,8 +5,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 class Header extends React.Component{
   constructor(){
     super()
+    this.state = {
+      criteria:""
+    }
+    this.handleChange = this.handleChange.bind(this)
   }
 
+  handleChange(event){
+    const {name,value} = event.target
+    this.setState({ [name]:value})
+}
 
   render() {
     return(
@@ -31,8 +39,9 @@ class Header extends React.Component{
 
           </Nav>
           <Form inline>
-            <FormControl type="text" placeholder="Search a contact" className="mr-sm-2" />
-            <Button variant="outline-info">Search</Button>
+            <FormControl type="text" placeholder="Search a contact" className="mr-sm-2" 
+                         value={this.state.criteria} name="criteria" onChange={this.handleChange} />
+            <Button variant="outline-info" onClick={() => this.props.handleStateHeaderChange("manageContacts",this.state.criteria)}>Search</Button>
           </Form>
       </Navbar>
     )

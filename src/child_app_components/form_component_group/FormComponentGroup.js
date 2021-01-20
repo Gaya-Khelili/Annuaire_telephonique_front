@@ -342,7 +342,7 @@ class FormComponentGroup extends React.Component{
             <Form>
            
 
-                <div class="border border-primary" style={{ marginBottom: '40px' }}>
+                <div className="border border-primary" style={{ marginBottom: '40px' }}>
                     <Form.Row>
                      <Form.Group as={Col} controlId="formGridFname">
                         

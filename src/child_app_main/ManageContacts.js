@@ -11,9 +11,12 @@ class ManageContacts extends React.Component{
             allContact:[]
         }
         this.handleRefresh = this.handleRefresh.bind(this)
+        this.filterDuplicate = this.filterDuplicate.bind(this)
+        
     }
     
     componentDidMount(){
+       
         if (this.props.modSelection === "allContacts"){
             fetch("http://localhost:8080/api/contact/")
             .then(response => response.json())
@@ -23,7 +26,42 @@ class ManageContacts extends React.Component{
             })
             .catch(err => {throw new Error(err)})
         }
+        else {
+            fetch("http://localhost:8080/api/contact/search/" + this.props.modSelection)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                this.setState({allContact:data})
+            })
+            .catch(err => {throw new Error(err)})
+
+            fetch("http://localhost:8080/api/phone/search/" + this.props.modSelection)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                this.setState(
+                    {allContact: this.state.allContact.concat(data)})
+            })
+            .catch(err => {throw new Error(err)})
+
+            fetch("http://localhost:8080/api/address/search/" + this.props.modSelection)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                this.setState(
+                    {allContact: this.state.allContact.concat(data)})
+            })
+            .catch(err => {throw new Error(err)})
+        }
+
+        this.filterDuplicate()
     }
+
+    filterDuplicate(){
+        const listAllContact = [... new Set(this.state.allContact.map(tag => tag.idContact))]
+        this.setState({allContact: listAllContact})
+    }
+
 
     buildContactComponent(){
         
@@ -45,7 +83,6 @@ class ManageContacts extends React.Component{
             <Table striped bordered hover variant="dark">
                 <thead>
                     <tr>
-                    <th>#</th>
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Email</th>
