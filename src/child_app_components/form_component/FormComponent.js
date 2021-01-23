@@ -238,7 +238,7 @@ class FormComponent extends React.Component{
     }
 
     deleteContact(){
-        console.log(this.state.idContact)
+        
         fetch("http://localhost:8080/api/contact/"+this.state.idContact, {
                 headers: {
                     "Access-Control-Allow-Origin": "*",

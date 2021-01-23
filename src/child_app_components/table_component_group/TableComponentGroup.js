@@ -12,32 +12,36 @@ function TableContentGroup(props){
                 <td>{props.contactGroup.groupId}</td>
                 <td>{props.contactGroup.groupName}</td>
                 <td>
-                <Button variant="contained" 
+
+
+                    {/* <Button variant="contained" 
                             color="primary"
                             startIcon={<AccountCircleIcon />}
                         onClick={() =>  
-                            props.handleStateHeaderChange("addContact",props.contactGroup.groupId)}>Add Contacts</Button>
-                            
+                            props.handleStateHeaderChange("updateContactGroup",props.contactGroup.groupId)}>Update</Button> */}
                             <Button variant="contained" 
                             color="primary"
                             startIcon={<AccountCircleIcon />}
                         onClick={() =>  
+                            props.handleStateHeaderChange("addContact",props.contactGroup.groupId)}>Add Contacts</Button>
+                             <Button variant="contained" 
+                            color="secondary"
+                            startIcon={<DeleteIcon />}
+                        onClick={() =>  
                             props.handleStateHeaderChange("deleteContact",props.contactGroup.groupId)}>Delete Contacts</Button>
-
-                    <Button variant="contained" 
+                        <Button variant="contained" 
                             color="primary"
                             startIcon={<AccountCircleIcon />}
                         onClick={() =>  
                             props.handleStateHeaderChange("detailsContactGroup",props.contactGroup.groupId)}>Details</Button>
-
-                    <Button variant="contained"
+                    {/* <Button variant="contained"
                             color="secondary"
                             startIcon={<DeleteIcon />}
                             onClick={() => {
                         if (window.confirm('Are you sure you want to delete this contact group?'))
-                          deleteContactGroup(props.contactGroup.groupId,props)   
+                           deleteContactGroup(props.contactGroup.groupId,props)   
                        // props.handleStateHeaderChange("deleteContactGroup",props.contactGroup.groupId)
-                        }}>Delete</Button>
+                        }}>Delete</Button> */}
                 </td>
             </tr>
     )
@@ -45,7 +49,7 @@ function TableContentGroup(props){
 
 function deleteContactGroup(groupId,props){
     
-    fetch("http://localhost:8080/api/groupContact/"+groupId, {
+    fetch("http://localhost:8080/api/groupContact/contactGroup/"+groupId, {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
                     "Content-Type": "application/json"

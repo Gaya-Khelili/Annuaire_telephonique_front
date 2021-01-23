@@ -6,10 +6,10 @@ import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import CreateIcon from '@material-ui/icons/Create';
-import { AgGridReact } from 'ag-grid-react';
+//import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-
+import { AgGridColumn, AgGridReact,gridApi } from 'ag-grid-react';
 
 class FormComponentGroup extends React.Component{
     constructor(props){
@@ -17,9 +17,11 @@ class FormComponentGroup extends React.Component{
         this.state = {
             modForm:"",  
             groupId:"",
+            contactsid:[{idContact:""}],
             groupName:"",
             idContact:"",
             contacts:[{idContact:"",lname:"",fname:"",email:""}],
+            contactsInGroup:[{idContact:"",lname:"",fname:"",email:""}],
             lname:"",
             fname:"",
             email:""
@@ -35,6 +37,12 @@ class FormComponentGroup extends React.Component{
         this.deleteContactGroup = this.deleteContactGroup.bind(this)
         this.getAllContactInfo = this.getAllContactInfo.bind(this)
         this.getGroupInfo = this.getGroupInfo.bind(this)
+        this.onRowSelected = this.onRowSelected.bind(this)
+        this.onGridReady = this.onGridReady.bind(this)
+        this.getAnotherContact = this.getAnotherContact.bind(this)
+        this.onGridReadyContactInGroup = this.onGridReadyContactInGroup.bind(this)
+            
+            
     }
 
 
@@ -43,6 +51,9 @@ class FormComponentGroup extends React.Component{
         if (this.props.caller === "detailsContactGroup") {
             console.log("detail group contact")
             this.setState({modForm:"Update contact group"})
+            this.setState({
+                groupId : this.props.groupId
+            })
             this.getGroupInfo(this.props.groupId)
             this.getContactInfo(this.props.groupId)
         }
@@ -50,20 +61,28 @@ class FormComponentGroup extends React.Component{
             this.deleteContactGroup(this.props.groupId)
         }
         else if(this.props.caller === "addContact"){
-            console.log("add contact")
+           this.setState({
+               groupId : this.props.groupId
+           })
             this.setState({modForm:"Add contacts to the group"})
             this.getAllContactInfo()
+            this.getContactInfo(this.props.groupId)
+            this.getAnotherContact()
+            
         }
         else if(this.props.caller === "deleteContact"){
+            this.setState({
+                groupId : this.props.groupId
+            })
+            console.log(this.props.groupId)
+            this.getGroupInfo(this.props.groupId)
+            this.getContactInfo(this.props.groupId)// que les contacts qui sont dans le group
             this.setState({modForm:"Delete contacts"})
-            this.getAllContactInfo()
+            
         }
-        else {
-            this.setState({modForm:"Create contact group"})
-            this.getAllContactInfo()
-            this.setState({modForm:"Create group"}) 
-        }
+        
     }
+    
     getAllContactInfo(){
         fetch("http://localhost:8080/api/contact")
         .then(response => response.json())
@@ -76,14 +95,33 @@ class FormComponentGroup extends React.Component{
     getContactInfo(groupId){
         fetch("http://localhost:8080/api/contact/contactbycontactGroup/"+groupId)
         .then(response => response.json())
-        .then(data => {
-            console.log("id contact "+data.idContact)
-           
-                 this.setState({contacts:data})
-    
+        .then(data => {           
+                 this.setState({contactsInGroup:data})
             
         })
         .catch(err => {throw new Error(err)})
+    }
+    getAnotherContact(){ 
+         
+        var contenue = [{idContact:"",lname:"",fname:"",email:""}]
+        /**
+        this.state.contacts.forEach((c,idc) =>{
+            this.state.contactsInGroup.forEach((cg,id)=>{
+                if(idc === id){
+                    if(c.idContact === cg.idContact){
+                        contenue.concat([{idContact:c.idContact,lname:c.lname,fname:c.fname,email:c.email}])
+                        console.log("gd"+c.idContact)
+                     }
+                }
+                
+            })
+
+        })**/
+         this.setState({
+            contacts  : contenue
+        })
+      
+        
     }
     getGroupInfo(groupId){
         fetch("http://localhost:8080/api/groupContact/"+groupId)
@@ -112,15 +150,14 @@ class FormComponentGroup extends React.Component{
 
     createContactGroup(){
         
-        fetch("http://localhost:8080/api/groupContact/fullcontactgroup", {
+        fetch("http://localhost:8080/api/groupContact", {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
                     "Content-Type": "application/json"
                   },
                 method: 'POST',
                 body : JSON.stringify({
-                    groupName:this.state.groupName,
-                    contacts:this.state.contacts
+                    groupName:this.state.groupName
                 })
             })
             .then(response => {
@@ -137,15 +174,15 @@ class FormComponentGroup extends React.Component{
 
     updateContactGroup(){
         
-        fetch("http://localhost:8080/api/groupContact/" + this.state.groupId, {
+        fetch("http://localhost:8080/api/contact/contactGroup", {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
                     "Content-Type": "application/json"
                   },
                 method: 'PUT',
                 body : JSON.stringify({
-                    groupName:this.state.groupName,
-                    contacts:this.state.contacts
+                    groupId:this.state.groupId,
+                    groupName:this.state.groupName
                 })
             })
             .then(response => {
@@ -156,8 +193,10 @@ class FormComponentGroup extends React.Component{
             });
     }
 
-    addContact(){
-        fetch("http://localhost:8080/api/groupContact/fullcontactgroup" , {
+    addContacts(){
+        console.log("Id "+this.state.groupId)
+        console.log(this.state.contactsid.idContact)
+        fetch("http://localhost:8080/api/contact/addContacts" , {
             headers: {
                 "Access-Control-Allow-Origin": "*",
                 "Content-Type": "application/json"
@@ -165,8 +204,8 @@ class FormComponentGroup extends React.Component{
             method: 'PUT',
             body : JSON.stringify({
                 groupId:this.state.groupId,
-                groupName:this.state.groupName,
                 contacts:this.state.contacts
+                
             })
         })
         .then(response => {
@@ -178,10 +217,31 @@ class FormComponentGroup extends React.Component{
 
 
     }
+    deleteContact(){
+        fetch("http://localhost:8080/api/contact/deleteContacts", {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json"
+              },
+            method: 'DELETE',
+            body : JSON.stringify({
+                groupId:this.state.groupId,
+                groupName:this.state.groupName,
+                contacts:this.state.contactsInGroup
+                
+            })
+        })
+        .then(response => {
+            this.props.handleStateHeaderChange("manageGroups","allContactGroups")
+        })
+        .catch(err => {
+            console.log(err);
+        });
 
+    }
     deleteContactGroup(){
-
-        fetch("http://localhost:8080/api/groupContact/"+this.state.groupId, {
+        console.log("kjj"+this.state.groupId)
+        fetch("http://localhost:8080/api/groupContact/contactGroup/"+this.state.groupId, {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
                     "Content-Type": "application/json"
@@ -196,41 +256,67 @@ class FormComponentGroup extends React.Component{
             });
     }
     
-    hundleDeleteContact = idx => () => {
-        this.setState({
-            contacts: this.state.contacts.filter((c, sidx) => idx !== sidx)
-        });
-      };
-      hundleAddAnotherContact = () => {
-        this.setState({
-          contacts: this.state.contacts.concat([{idContact:"",lname:"",fname:"",email:""}])
-        });
-      };
-   
-
-    onSelectionChanged=(event)=>{
-        console.log(this.state.contacts)
-        console.log("la colonne selectionné "+event.api.getSelectedRows().idContact)
-        this.setState({
-                contacts : event.api.getSelectedRows()
-        })
-        console.log(this.state.contacts)
-     }
+    // hundleDeleteContact = idx => () => {
+    //     this.setState({
+    //         contacts: this.state.contacts.filter((c, sidx) => idx !== sidx)
+    //     });
+    //   };
+    //   hundleAddAnotherContact = () => {
+    //     this.setState({
+    //       contacts: this.state.contacts.concat([{idContact:"contact.idContact",lname:"contact.lname",fname:"contact.fname",email:"contact.email"}])
+    //     });
+    //   };
 
 
+    // onSelectionChanged=(event)=>{
+        
+    //     this.setState({
+    //             contacts : event.api.getSelectedNodes()
+    //     })
+    //     event.api.getSelectedNodes().map((contact, id) => {
+    //         console.log("select"+contact.idContact)
+    //     })
+
+    //  }
+
+    onRowSelected(event) {
+        if(event.node.isSelected() === true){
+           
+          this.setState({
+         contacts: this.state.contacts.concat([{idContact:event.node.data.idContact,lname:event.node.data.lname,fname:event.node.data.fname,email:event.node.data.email}])
+            });
+                   
+                    window.alert(event.node.data.idContact)
+        }
+        else if(event.node.isSelected() === false){
+            this.setState({
+                contacts: this.state.contacts.filter((p, sidx) => (event.node.idContact) !== sidx)
+            });
+            window.alert(event.node.data.idContact)
+         
+        }
+       
+      
+      }
 
      onGridReady = (params) => {
-            console.log("grid is ready"+this.state.contacts)
-         fetch("http://localhost:8080/api/contact/").then(resp => resp.json())
-              .then(resp => {
-                console.log(resp)
+       
+         fetch("http://localhost:8080/api/contact/").then(resp => resp.json()) // ça ne s'utilise pas
+             .then(resp => {
+                 console.log(resp)
                 params.api.applyTransaction({ add: this.state.contacts  }) //adding API data to grid
-              })
+             })
 
     }
     
- 
-     
+
+    onGridReadyContactInGroup = (params) => {
+                fetch("http://localhost:8080/api/contact/contactbycontactGroup/"+this.state.groupId).then(resp => resp.json()) // ça ne s'utilise pas
+                    .then(resp => {
+                        console.log(resp)
+                        params.api.applyTransaction({ add: this.state.contactsInGroup  }) //adding API data to grid
+                    })
+    }
     
     render(){
 
@@ -248,7 +334,8 @@ class FormComponentGroup extends React.Component{
                 </Form.Group>
             </Form.Row>
                 <Form.Row>
-                    <div className="ag-theme-alpine" style={{ height: '500px',  width: '2000px'}}>
+                    <div className="ag-theme-alpine" style={{ height: '500px',  width: '1750px'}}>
+                           
                                 <AgGridReact
                                 columnDefs={[
                                     { headerName: "Id", field: "idContact", checkboxSelection:true,headerCheckboxSelection:true },
@@ -263,7 +350,7 @@ class FormComponentGroup extends React.Component{
                                 } }
                                 onGridReady={this.onGridReady}
                                 rowSelection={'multiple'}
-                                onSelectionChanged={this.onSelectionChanged}
+                                onRowSelected={this.onRowSelected}
                                 rowMultiSelectWithClick={true}
                                 >
                                 </AgGridReact>
@@ -274,11 +361,11 @@ class FormComponentGroup extends React.Component{
                         <div style={{ marginBottom: '20px' }}>
                                         <Button 
                                         variant="contained" 
-                                        color="secondary"
+                                        color="primary"
                                         startIcon={<PersonAddIcon />}
                                         onClick={() => { 
                                             if (window.confirm('Are you sure you want to add those contacts in this group?')) 
-                                        this.addContact()  }}> Add contacts
+                                        this.addContacts()  }}> Add contacts
                                     </Button> 
                      </div>
                         </div>
@@ -298,7 +385,7 @@ class FormComponentGroup extends React.Component{
                         </Form.Group>
                     </Form.Row>
                         <Form.Row>
-                            <div className="ag-theme-alpine" style={{ height: '500px',  width: '2000px'}}>
+                            <div className="ag-theme-alpine" style={{ height: '500px',  width: '1750px'}}>
                                         <AgGridReact
                                         columnDefs={[
                                             { headerName: "Id", field: "idContact", checkboxSelection:true,headerCheckboxSelection:true },
@@ -311,9 +398,9 @@ class FormComponentGroup extends React.Component{
                                             flex: 1, filter: true,
                                             floatingFilter: true
                                         } }
-                                        onGridReady={this.onGridReady}
+                                        onGridReady={this.onGridReadyContactInGroup}
                                         rowSelection={'multiple'}
-                                        onSelectionChanged={this.onSelectionChanged}
+                                        onRowSelected={this.onRowSelected}
                                         rowMultiSelectWithClick={true}
                                         >
                                         </AgGridReact>
@@ -322,80 +409,60 @@ class FormComponentGroup extends React.Component{
                                 </Form.Row>
                                 
                                 <div style={{ marginBottom: '20px' }}>
-                                                <Button 
-                                                variant="contained" 
+                                
+
+                                            <Button 
+                                                variant="contained"
                                                 color="secondary"
-                                                startIcon={<PersonAddIcon />}
+                                                startIcon={<DeleteIcon />}
                                                 onClick={() => { 
-                                                    if (window.confirm('Are you sure you want to add those contacts in this group?')) 
-                                                this.deleteContact()  }}> Delete contacts
-                                            </Button> 
+                                                    if (window.confirm('Are you sure you want to delete those contacts from this group?'))
+                                                            this.deleteContact()}}>
+                                                            Delete contacts
+                                         </Button>
                              </div>
                                 </div>
         
                         </div>               
                 )
         }
-        else{
-        return(
-
-            <Form>
-           
-
-                <div className="border border-primary" style={{ marginBottom: '40px' }}>
-                    <Form.Row>
-                     <Form.Group as={Col} controlId="formGridFname">
-                        
-                       <Form.Label>Group Name</Form.Label>
-                        <Form.Control type="text" placeholder="Group Name" 
-                            value={this.state.groupName} name="groupName" onChange={this.handleChange}/>
-                     </Form.Group>
-                    </Form.Row>
-                 </div>
-                    <div style={{ marginBottom: '20px' }}>
-
-                    <Form.Row> 
-                        <Form.Group as={Col} controlId="formGridTitleContact">
-                             <h1><strong>Please, choose any contact you want to add in the new group</strong></h1>
-                        </Form.Group>
-                    </Form.Row>
-                        <Form.Row>
-                             <div className="ag-theme-alpine" style={{ height: '500px',  width: '2000px'}}>
-                                        <AgGridReact
-                                        columnDefs={[
-                                            { headerName: "Id", field: "idContact", checkboxSelection:true,headerCheckboxSelection:true },
-                                            { headerName: "Last name", field: "lname",},
-                                            { headerName: "First name", field: "fname", },
-                                            { headerName: "Email", field: "email", },
-                                          ]}
-                                        defaultColDef={{sortable: true,
-                                            editable: true,
-                                            flex: 1, filter: true,
-                                            floatingFilter: true
-                                         } }
-                                        onGridReady={this.onGridReady}
-                                        rowSelection={'multiple'}
-                                        onSelectionChanged={this.onSelectionChanged}
-                                        rowMultiSelectWithClick={true}
-                                        >
-                                        </AgGridReact>
-                            </div> 
-                        
-                          </Form.Row>
-                              </div>
-        
-                          
-                 
+        else if(this.state.modForm === "Update contact group"){
+            return (
+                <div>
+            <div className="border border-primary" style={{ marginBottom: '20px' }}>
+            <Form.Row>
+             <Form.Group as={Col} controlId="formGridFname">
                 
-                {
-                 this.state.modForm === "Update contact group" ?  
-                    
-                    <div style={{ marginBottom: '20px' }}>
-                       <div>
+               <Form.Label>Group Name</Form.Label>
+                <Form.Control type="text" placeholder="Group Name" 
+                    value={this.state.groupName} name="groupName" onChange={this.handleChange}/>
+             </Form.Group>
+            </Form.Row>
+         </div>
+
                 
-   
-                        </div>
-                        <Button 
+                <div className="ag-theme-alpine" style={{ height: '500px',  width: '1750px'}}>
+                            <AgGridReact
+                            columnDefs={[
+                             { headerName: "Id", field: "idContact",},
+                                { headerName: "Last name", field: "lname",},
+                                { headerName: "First name", field: "fname", },
+                                { headerName: "Email", field: "email", },
+                            ]}
+                            defaultColDef={{sortable: true,
+                                editable: true,
+                                flex: 1, filter: true,
+                                floatingFilter: true
+                            } }
+                            onGridReady={this.onGridReadyContactInGroup}
+                            rowSelection={'multiple'}
+                            onSelectionChanged={this.onSelectionChanged}
+                            rowMultiSelectWithClick={true}
+                            >
+                            </AgGridReact>
+                </div> 
+
+                <Button 
                             variant="contained" 
                             color="primary"
                             startIcon={<CreateIcon />}
@@ -414,9 +481,30 @@ class FormComponentGroup extends React.Component{
                                     this.deleteContactGroup()}}>
                                     Delete contact group
                         </Button> 
-                        </div>
-                      
-                        : 
+
+                </div>
+            )
+        }
+        else{
+        return(
+
+            <Form>
+           
+
+                <div className="border border-primary" style={{ marginBottom: '40px' }}>
+                    <Form.Row>
+                     <Form.Group as={Col} controlId="formGridFname">
+                        
+                       <Form.Label>Group Name</Form.Label>
+                        <Form.Control type="text" placeholder="Group Name" 
+                            value={this.state.groupName} name="groupName" onChange={this.handleChange}/>
+                     </Form.Group>
+                    </Form.Row>
+                 </div>
+                    <div style={{ marginBottom: '20px' }}>
+                              </div>                 
+                
+           
                         <div style={{ marginBottom: '20px' }}>
                         <Button 
                             variant="contained" 
@@ -427,7 +515,7 @@ class FormComponentGroup extends React.Component{
                             this.handleSubmit()  }}> Create Group
                         </Button>  
                          </div>
-            }
+           
             </Form>
 
         )
